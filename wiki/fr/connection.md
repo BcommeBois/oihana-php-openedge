@@ -1,6 +1,6 @@
 # Connexion ODBC et multi-base
 
-Cette page décrit comment configurer une (ou plusieurs) connexion ODBC Progress depuis un fichier TOML, l'enregistrer comme service dans un conteneur PHP-DI, et la consommer depuis les modèles. C'est le pattern utilisé en production dans les applications consommatrices, qui adresse une base ERP, une base comptabilité, une base statistiques, etc., sur le même serveur Progress.
+Cette page décrit comment configurer une (ou plusieurs) connexion ODBC Progress depuis un fichier TOML, l'enregistrer comme service dans un conteneur PHP-DI, et la consommer depuis les modèles. C'est le pattern recommandé quand l'application hôte adresse plusieurs bases Progress hébergées sur le même serveur (par exemple une base ERP et une base analytique).
 
 ## Vocabulaire
 
@@ -13,7 +13,7 @@ Le DSN final est la fusion des deux blocs. Cette séparation simplifie la rotati
 
 ## Configuration TOML
 
-Exemple typique d'une configuration multi-base, extrait de `config.example.toml` de l.application hôte :
+Exemple typique d'une configuration multi-base — un `[odbc]` partagé, puis une section `[databases.<nom>]` par base Progress :
 
 ```toml
 [odbc]
@@ -25,32 +25,22 @@ queryTimeout = 300         # secondes ; -1 pour pas de timeout
 logonID      = "reader"
 password     = "secret"
 
-[databases.accounting]
-database   = "pocw0501"
-portNumber = 20929
-
-[databases.common]
-database   = "cmnbney"
-portNumber = 20930
-
 [databases.erp]
-database   = "gcow0501"
+database   = "erp_database"
 portNumber = 20931
 
-[databases.stats]
-database   = "stat0501"
+[databases.analytics]
+database   = "analytics_database"
 portNumber = 20932
-
-[databases.temps]
-database   = "tps0501"
-portNumber = 20933
 ```
+
+Les deux bases pointent vers le même `[odbc]` (même hôte, mêmes credentials, même driver) et ne se distinguent que par `database` et `portNumber`. Pour ajouter une troisième base, il suffit d'ajouter une section `[databases.<nom>]` supplémentaire.
 
 > **Conseil sécurité.** `logonID` et `password` sont des secrets : ne pas commit le `config.toml` réel, garder un `config.example.toml` avec des placeholders, et résoudre les valeurs sensibles via un coffre (env vars, fichier `secrets/`, Vault, etc.) au boot.
 
 ## Service PDO par base
 
-Dans les applications consommatrices, chaque base a son propre fichier de définition DI sous `definitions/odbc/<base>.php`. Tous ces fichiers ont la même structure :
+Convention recommandée : chaque base a son propre fichier de définition DI sous `definitions/odbc/<base>.php`. Tous ces fichiers ont la même structure :
 
 ```php
 // definitions/odbc/erp.php
@@ -74,7 +64,7 @@ Trois choses à remarquer :
 
 1. **Spread operator pour fusionner les blocs.** `[ ...$common , ...$base ]` donne un seul tableau plat consommé par `OpenEdgePDOBuilder`. Les clés du bloc base écrasent celles du bloc commun, ce qui permet de surcharger ponctuellement un paramètre (par exemple un `queryTimeout` spécifique pour la base de stats).
 2. **`OpenEdgePDOBuilder` est *invokable*.** Le `()` final appelle `__invoke()` qui retourne l'instance PDO. Le service enregistré est donc directement le `PDO`, pas la factory.
-3. **Le service est paresseux par défaut.** Tant qu'aucun modèle ne demande la base ERP, la closure n'est pas appelée et aucune connexion ODBC n'est ouverte. C'est important quand on déclare cinq bases mais qu'une requête HTTP donnée n'en touche qu'une.
+3. **Le service est paresseux par défaut.** Tant qu'aucun modèle ne demande la base ERP, la closure n'est pas appelée et aucune connexion ODBC n'est ouverte. C'est important quand on déclare plusieurs bases mais qu'une requête HTTP donnée n'en touche qu'une.
 
 ### Pourquoi un fichier par base
 
@@ -102,8 +92,8 @@ new Documents( $container ,
     ModelParam::SCHEMA => Customer::class     ,
     ModelParam::QUERY_BUILDER =>
     [
-        SQL::FROM    => 'PUB.clients_clients' ,
-        SQL::COLUMNS => [ 'cd_client' , 'nom_client' ] ,
+        SQL::FROM    => 'PUB.customers' ,
+        SQL::COLUMNS => [ 'customer_id' , 'customer_name' ] ,
     ],
 ]) ;
 ```
@@ -121,15 +111,15 @@ Un modèle est attaché à **une seule** base PDO. Si une requête HTTP a besoin
 
 ```php
 $customers = new Documents( $container , [
-    ModelParam::PDO    => Databases::ODBC_ERP        ,
-    ModelParam::SCHEMA => Customer::class            ,
-    ModelParam::QUERY_BUILDER => [ /* ... */ ]       ,
+    ModelParam::PDO    => Databases::ODBC_ERP       ,
+    ModelParam::SCHEMA => Customer::class           ,
+    ModelParam::QUERY_BUILDER => [ /* ... */ ]      ,
 ]) ;
 
-$accountingDocs = new Documents( $container , [
-    ModelParam::PDO    => Databases::ODBC_ACCOUNTING ,
-    ModelParam::SCHEMA => AccountingEntry::class     ,
-    ModelParam::QUERY_BUILDER => [ /* ... */ ]       ,
+$reports = new Documents( $container , [
+    ModelParam::PDO    => Databases::ODBC_ANALYTICS ,
+    ModelParam::SCHEMA => Report::class             ,
+    ModelParam::QUERY_BUILDER => [ /* ... */ ]      ,
 ]) ;
 ```
 
@@ -144,8 +134,8 @@ Avant de soupçonner le code PHP, il est utile de prouver que le DSN et les cred
 ls /usr/dlc/odbc/lib/pgoe27.so
 
 # Test connexion via isql (paquet unixodbc-bin)
-echo "SELECT TOP 1 cd_client FROM PUB.clients_clients" | \
-isql -v "DRIVER=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=gcow0501;IANAAppCodePage=106" \
+echo "SELECT TOP 1 customer_id FROM PUB.customers" | \
+isql -v "DRIVER=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=erp_database;IANAAppCodePage=106" \
      "reader" "secret"
 ```
 

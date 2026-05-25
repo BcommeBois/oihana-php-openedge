@@ -25,9 +25,9 @@ C'est la distinction la plus subtile et la plus utilisée :
 ```sql
 SELECT
     COUNT(*)                AS total ,           -- toutes les lignes
-    COUNT(cd_pays)          AS withCountry ,     -- lignes avec un cd_pays renseigné
-    COUNT(DISTINCT cd_pays) AS distinctCountries -- nombre de pays différents
-FROM PUB.clients_clients
+    COUNT(country_code)          AS withCountry ,     -- lignes avec un country_code renseigné
+    COUNT(DISTINCT country_code) AS distinctCountries -- nombre de pays différents
+FROM PUB.customers
 ```
 
 ## Helper `count()` du *query builder*
@@ -39,15 +39,15 @@ use oihana\openedge\db\OpenEdgeQueryBuilder ;
 use oihana\openedge\enums\OpenEdge as SQL ;
 
 $builder = new OpenEdgeQueryBuilder([
-    SQL::FROM    => 'PUB.clients_clients' ,
+    SQL::FROM    => 'PUB.customers' ,
     SQL::COUNTER => '*' ,                              // par défaut = '*'
 ]) ;
 
 echo $builder->count() ;
 // COUNT(*)
 
-echo $builder->count([ SQL::COUNTER => 'cd_pays' ]) ;
-// COUNT(cd_pays)
+echo $builder->count([ SQL::COUNTER => 'country_code' ]) ;
+// COUNT(country_code)
 ```
 
 `SQL::COUNTER` reçoit la chaîne à mettre entre les parenthèses (un nom de colonne, `DISTINCT col`, ou `*`).
@@ -56,7 +56,7 @@ Côté modèle, la méthode `count()` du modèle [`Documents`](../models.md) con
 
 ```php
 $total = $customers->count() ;                                 // SELECT COUNT(*) FROM ...
-$withCountry = $customers->count([ SQL::COUNTER => 'cd_pays' ]) ;
+$withCountry = $customers->count([ SQL::COUNTER => 'country_code' ]) ;
 ```
 
 ## `SUM`, `AVG`, `MIN`, `MAX`
@@ -69,30 +69,30 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 
 SQL::COLUMNS =>
 [
-    [ SQL::COLUMN => 'cd_pays' , SQL::ALIAS => 'country' ] ,
+    [ SQL::COLUMN => 'country_code' , SQL::ALIAS => 'country' ] ,
     [
-        SQL::COLUMN => 'cd_client'                    ,
+        SQL::COLUMN => 'customer_id'                    ,
         SQL::ALTER  => AggregateFunction::COUNT       ,
         SQL::ALIAS  => 'count'                        ,
     ],
     [
-        SQL::COLUMN => 'chiffre_affaires'             ,
+        SQL::COLUMN => 'revenue'             ,
         SQL::ALTER  => AggregateFunction::SUM         ,
         SQL::ALIAS  => 'totalRevenue'                 ,
     ],
 ],
-SQL::GROUP_BY => 'cd_pays' ,
+SQL::GROUP_BY => 'country_code' ,
 ```
 
 Produit l'équivalent SQL :
 
 ```sql
 SELECT
-    cd_pays            AS "country" ,
-    COUNT(cd_client)   AS "count"   ,
-    SUM(chiffre_affaires) AS "totalRevenue"
+    country_code            AS "country" ,
+    COUNT(customer_id)   AS "count"   ,
+    SUM(revenue) AS "totalRevenue"
 FROM ...
-GROUP BY cd_pays
+GROUP BY country_code
 ```
 
 ## Agrégats et `GROUP BY`
@@ -100,8 +100,8 @@ GROUP BY cd_pays
 Un `SELECT` qui mélange colonnes simples et agrégats **doit** déclarer toutes les colonnes simples dans `GROUP BY`. Sinon Progress retourne une erreur.
 
 ```php
-SQL::COLUMNS  => [ 'cd_pays' , 'segment' , [ 'COUNT(*)' , SQL::ALIAS => 'n' ] ] ,
-SQL::GROUP_BY => [ 'cd_pays' , 'segment' ] ,
+SQL::COLUMNS  => [ 'country_code' , 'segment' , [ 'COUNT(*)' , SQL::ALIAS => 'n' ] ] ,
+SQL::GROUP_BY => [ 'country_code' , 'segment' ] ,
 ```
 
 Le framework ne **vérifie pas** automatiquement cette cohérence — c'est au développeur de garantir que `GROUP BY` couvre toutes les colonnes non-agrégées. Une erreur courante : modifier `COLUMNS` sans mettre à jour `GROUP_BY`.
@@ -112,25 +112,25 @@ Le framework ne **vérifie pas** automatiquement cette cohérence — c'est au d
 
 ```sql
 -- Mauvais : WHERE ne peut pas voir SUM(x)
-SELECT cd_pays, SUM(chiffre_affaires) AS total
-FROM PUB.clients
-WHERE SUM(chiffre_affaires) > 100000           -- ERREUR
-GROUP BY cd_pays
+SELECT country_code, SUM(revenue) AS total
+FROM PUB.customers
+WHERE SUM(revenue) > 100000           -- ERREUR
+GROUP BY country_code
 
 -- Bon : HAVING filtre après agrégation
-SELECT cd_pays, SUM(chiffre_affaires) AS total
-FROM PUB.clients
-GROUP BY cd_pays
-HAVING SUM(chiffre_affaires) > 100000          -- OK
+SELECT country_code, SUM(revenue) AS total
+FROM PUB.customers
+GROUP BY country_code
+HAVING SUM(revenue) > 100000          -- OK
 ```
 
 Côté framework :
 
 ```php
-SQL::GROUP_BY => 'cd_pays' ,
+SQL::GROUP_BY => 'country_code' ,
 SQL::HAVING   =>
 [
-    SQL::COLUMN   => 'chiffre_affaires'      ,
+    SQL::COLUMN   => 'revenue'      ,
     SQL::ALTER    => AggregateFunction::SUM  ,
     SQL::OPERATOR => '>'                     ,
     SQL::VALUE    => 100000                  ,
@@ -142,9 +142,9 @@ SQL::HAVING   =>
 Les agrégats acceptent une expression, pas seulement une colonne :
 
 ```sql
-SUM(prix_ht * quantite)        -- somme du CA ligne par ligne
-AVG(CASE WHEN segment = 'A' THEN prix_ht ELSE 0 END)
-COUNT(CASE WHEN actif = 1 THEN 1 END)   -- compte les lignes actives
+SUM(net_price * quantite)        -- somme du CA ligne par ligne
+AVG(CASE WHEN segment = 'A' THEN net_price ELSE 0 END)
+COUNT(CASE WHEN active = 1 THEN 1 END)   -- compte les lignes actives
 ```
 
 C'est le pattern "agréger conditionnellement" — utile quand on veut plusieurs métriques dans un seul `GROUP BY` sans plusieurs sous-requêtes.

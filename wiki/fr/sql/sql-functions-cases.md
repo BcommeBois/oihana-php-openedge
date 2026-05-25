@@ -39,8 +39,8 @@ Chaque `condition` peut être n'importe quel prédicat (`x > 100`, `y IS NULL`, 
 ```php
 use function oihana\openedge\db\helpers\cases\whenExpression ;
 
-echo whenExpression( "prix_ht > 100" ) ;
-// WHEN prix_ht > 100
+echo whenExpression( "net_price > 100" ) ;
+// WHEN net_price > 100
 ```
 
 ### `thenExpression( value )`
@@ -68,8 +68,8 @@ Compose `WHEN ... THEN ...` en un seul appel, plus pratique.
 ```php
 use function oihana\openedge\db\helpers\cases\whenThenExpression ;
 
-echo whenThenExpression( "prix_ht > 100" , "'cher'" ) ;
-// WHEN prix_ht > 100 THEN 'cher'
+echo whenThenExpression( "net_price > 100" , "'cher'" ) ;
+// WHEN net_price > 100 THEN 'cher'
 ```
 
 ## `caseExpression()` — composer global
@@ -85,15 +85,15 @@ echo expression([
     [
         SQL::WHEN =>
         [
-            [ "prix_ht > 100" , "'cher'"   ] ,
-            [ "prix_ht > 50"  , "'moyen'"  ] ,
+            [ "net_price > 100" , "'cher'"   ] ,
+            [ "net_price > 50"  , "'moyen'"  ] ,
         ],
         SQL::ELSE => "'pas cher'" ,
     ]
 ]) ;
 // CASE
-//     WHEN prix_ht > 100 THEN 'cher'
-//     WHEN prix_ht > 50 THEN 'moyen'
+//     WHEN net_price > 100 THEN 'cher'
+//     WHEN net_price > 50 THEN 'moyen'
 //     ELSE 'pas cher'
 // END
 ```
@@ -126,7 +126,7 @@ echo expression([
 
 ## Pattern d'usage — calcul de catégorie tarifaire
 
-Dans les applications consommatrices, ce pattern est utilisé pour calculer une catégorie côté SQL (plus rapide que de remonter le prix et catégoriser côté PHP) :
+Dans une application hôte typique, ce pattern est utilisé pour calculer une catégorie côté SQL (plus rapide que de remonter le prix et catégoriser côté PHP) :
 
 ```php
 use oihana\openedge\db\enums\Type ;
@@ -140,8 +140,8 @@ SQL::COLUMNS =>
         [
             SQL::WHEN =>
             [
-                [ "produits.prix_ht >= 1000" , "'premium'"  ] ,
-                [ "produits.prix_ht >= 100"  , "'standard'" ] ,
+                [ "products.net_price >= 1000" , "'premium'"  ] ,
+                [ "products.net_price >= 100"  , "'standard'" ] ,
             ],
             SQL::ELSE => "'budget'" ,
         ],

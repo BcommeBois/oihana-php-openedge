@@ -29,7 +29,7 @@ $pdo = ( new OpenEdgePDOBuilder
     'driver'   => '/usr/dlc/odbc/lib/pgoe27.so'   ,
     'hostName' => 'erp.example.com'               ,
     'portNumber' => 20931                         ,
-    'database' => 'gcow0501'                      ,
+    'database' => 'erp_database'                      ,
     'logonID'  => 'reader'                        ,
     'password' => 'secret'                        ,
 ]) )() ;
@@ -38,11 +38,11 @@ $pdo = ( new OpenEdgePDOBuilder
 $customers = new Documents( $container ,
 [
     SQL::PDO   => $pdo                  ,
-    SQL::TABLE => 'PUB.clients_clients' ,
+    SQL::TABLE => 'PUB.customers' ,
 ]) ;
 
 $list  = $customers->list ([ SQL::LIMIT => 50 ]) ;
-$first = $customers->get  ([ 'cd_client' => 1274 ]) ;
+$first = $customers->get  ([ 'customer_id' => 1274 ]) ;
 ```
 
 For details (ODBC DSN, PDO attributes, composable SQL builder, models, Slim controllers), see the table of contents below.

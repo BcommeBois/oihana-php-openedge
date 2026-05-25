@@ -7,7 +7,7 @@ The [`OpenEdgeDSN`](../../src/oihana/openedge/db/OpenEdgeDSN.php) class assemble
 The Progress SQL ODBC driver expects a DSN like:
 
 ```
-odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=gcow0501;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
+odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=erp_database;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
 ```
 
 Three drawbacks to manipulating this string directly:
@@ -26,7 +26,7 @@ Three drawbacks to manipulating this string directly:
 | `driver` | `Driver` | `string` | Absolute path to the driver binary (`pgoe27.so` on Linux). |
 | `hostName` | `HostName` | `string` | DNS name or IP of the Progress server. |
 | `portNumber` | `PortNumber` | `string\|int` | Port the SQL broker listens on for this database. Differs per database. |
-| `database` | `Database` | `string` | Progress database name (typically `gcow0501`, not a path). |
+| `database` | `Database` | `string` | Progress database name (typically `erp_database`, not a path). |
 | `charSet` | `IANAAppCodePage` | `int` | IANA codepage for client-side string conversions. **Always `106` (UTF-8)** unless special case. |
 | `arraySize` | `ArraySize` | `?int` | Number of rows fetched per server round-trip. Driver default = 1. Recommended for bulk reads: `200` to `5000`. |
 | `defaultLongDataBuffLen` | `DefaultLongDataBuffLen` | `?int` | Buffer size (in multiples of 1024) for long columns (`CLOB`, `BLOB`, `LVARBINARY`). Driver default = 1024. |
@@ -91,14 +91,14 @@ $dsn = new OpenEdgeDSN
     'driver'   => '/usr/dlc/odbc/lib/pgoe27.so' ,
     'hostName' => 'erp.example.com'             ,
     'portNumber' => 20931                       ,
-    'database' => 'gcow0501'                    ,
+    'database' => 'erp_database'                    ,
     'charSet'  => 106                           ,
     'arraySize' => 200                          ,
     'queryTimeout' => 300                       ,
 ]) ;
 
 echo (string) $dsn ;
-// odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=gcow0501;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
+// odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=erp_database;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
 ```
 
 The parameter order in the string is fixed by `__toString()`:

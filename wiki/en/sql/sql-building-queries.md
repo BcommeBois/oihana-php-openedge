@@ -1,6 +1,6 @@
 # Building a SQL query step by step
 
-This page walks through a concrete case to show how the framework's helpers and enums fit together to produce a full Progress `SELECT`, with typed columns, joins, parameterised conditions, sorting and pagination. The example: exposing a customer list from a `PUB.clients_clients` table, joined to a country thesaurus, with optional name filtering and safe sorting.
+This page walks through a concrete case to show how the framework's helpers and enums fit together to produce a full Progress `SELECT`, with typed columns, joins, parameterised conditions, sorting and pagination. The example: exposing a customer list from a `PUB.customers` table, joined to a country thesaurus, with optional name filtering and safe sorting.
 
 ## The SELECT pipeline
 
@@ -27,10 +27,10 @@ use function oihana\openedge\db\helpers\expression ;
 use oihana\openedge\enums\OpenEdge as SQL ;
 
 echo expression([
-    SQL::COLUMN => 'nom_client'  ,
+    SQL::COLUMN => 'customer_name'  ,
     SQL::TABLE  => 'clients'     ,
 ]) ;
-// clients.nom_client
+// clients.customer_name
 ```
 
 You can add a cast, an alias, mark the column as nullable (for a Progress outer join):
@@ -39,12 +39,12 @@ You can add a cast, an alias, mark the column as nullable (for a Progress outer 
 use oihana\openedge\db\enums\Type ;
 
 echo expression([
-    SQL::COLUMN => 'cd_pays'                ,
+    SQL::COLUMN => 'country_code'                ,
     SQL::TABLE  => 'clients'                ,
     SQL::CAST   => [ Type::VARCHAR , 3 ]    ,
     SQL::NULLABLE => true                   ,
 ]) ;
-// CAST(clients.cd_pays AS VARCHAR(3))(+)
+// CAST(clients.country_code AS VARCHAR(3))(+)
 ```
 
 > The `(+)` suffix is the **Progress outer join syntax** triggered by `SQL::NULLABLE => true`. See [Progress outer join](../progress/outer-join.md).
@@ -55,12 +55,12 @@ echo expression([
 echo expression([
     SQL::CONCAT =>
     [
-        [ SQL::COLUMN => 'prenom_client' , SQL::TABLE => 'clients' ] ,
+        [ SQL::COLUMN => 'first_name' , SQL::TABLE => 'clients' ] ,
         ' '                                                            ,
-        [ SQL::COLUMN => 'nom_client'    , SQL::TABLE => 'clients' ] ,
+        [ SQL::COLUMN => 'customer_name'    , SQL::TABLE => 'clients' ] ,
     ]
 ]) ;
-// clients.prenom_client || ' ' || clients.nom_client
+// clients.first_name || ' ' || clients.customer_name
 ```
 
 ### Listing several columns into a separator-joined string
@@ -70,11 +70,11 @@ echo expression([
     SQL::SEPARATOR => ';' ,
     SQL::LIST      =>
     [
-        [ SQL::COLUMN => 'prenom_client' , SQL::TABLE => 'clients' ] ,
-        [ SQL::COLUMN => 'nom_client'    , SQL::TABLE => 'clients' ] ,
+        [ SQL::COLUMN => 'first_name' , SQL::TABLE => 'clients' ] ,
+        [ SQL::COLUMN => 'customer_name'    , SQL::TABLE => 'clients' ] ,
     ]
 ]) ;
-// clients.prenom_client || ';' || clients.nom_client
+// clients.first_name || ';' || clients.customer_name
 ```
 
 ## Step 2 — `FROM` and joins
@@ -83,18 +83,18 @@ echo expression([
 use oihana\openedge\db\enums\Clause ;
 use oihana\openedge\db\enums\Join   ;
 
-$from = 'PUB.clients_clients clients'
+$from = 'PUB.customers clients'
       . ' '
       . Join::LEFT
-      . ' PUB.pays_pays pays '
+      . ' PUB.countries pays '
       . Clause::ON
-      . ' clients.cd_pays = pays.cd_pays' ;
+      . ' clients.country_code = pays.country_code' ;
 ```
 
 This manual concatenation works, but in practice you declare the `FROM` directly in the query-builder definition:
 
 ```php
-SQL::FROM => 'PUB.clients_clients clients LEFT JOIN PUB.pays_pays pays ON clients.cd_pays = pays.cd_pays'
+SQL::FROM => 'PUB.customers clients LEFT JOIN PUB.countries pays ON clients.country_code = pays.country_code'
 ```
 
 The framework doesn't rebuild `FROM` from parts — it's a pre-compiled string at initialisation.
@@ -112,12 +112,12 @@ use function oihana\openedge\db\helpers\bindExpression ;
 // In the builder, you declare the WHERE:
 SQL::WHERE =>
 [
-    SQL::COLUMN    => 'cd_pays'                    ,
+    SQL::COLUMN    => 'country_code'                    ,
     SQL::TABLE     => 'clients'                    ,
     SQL::OPERATOR  => RelationalOperator::EQUAL    ,
     SQL::BIND      => 'country'                    , // produces :country on the SQL side
 ]
-// → clients.cd_pays = :country
+// → clients.country_code = :country
 
 // At execution time, pass the bind value to PDO:
 $stmt->execute([ 'country' => 'FR' ]) ;
@@ -135,8 +135,8 @@ SQL::WHERE =>
     SQL::LOGIC      => Logic::AND ,
     SQL::CONDITIONS =>
     [
-        [ SQL::COLUMN => 'cd_pays' , SQL::TABLE => 'clients' , SQL::OPERATOR => '=' , SQL::BIND => 'country' ] ,
-        [ SQL::COLUMN => 'actif'   , SQL::TABLE => 'clients' , SQL::OPERATOR => '=' , SQL::VALUE => 1        ] ,
+        [ SQL::COLUMN => 'country_code' , SQL::TABLE => 'clients' , SQL::OPERATOR => '=' , SQL::BIND => 'country' ] ,
+        [ SQL::COLUMN => 'active'   , SQL::TABLE => 'clients' , SQL::OPERATOR => '=' , SQL::VALUE => 1        ] ,
     ]
 ]
 ```
@@ -146,10 +146,10 @@ The seven predicate forms are detailed in [SQL predicates](sql-predicates.md).
 ## Step 4 — `GROUP BY` and `HAVING`
 
 ```php
-SQL::GROUP_BY => 'cd_pays' ,
+SQL::GROUP_BY => 'country_code' ,
 SQL::HAVING   =>
 [
-    SQL::COLUMN   => 'cd_pays'  ,
+    SQL::COLUMN   => 'country_code'  ,
     SQL::OPERATOR => '<>'       ,
     SQL::VALUE    => 'XX'       ,
 ] ,
@@ -165,16 +165,16 @@ Sorting is **always** validated against a `SORTABLE` whitelist in the builder. T
 SQL::ORDER_BY => 'name' ,            // default value server-side
 SQL::SORTABLE =>
 [
-    'id'      => 'cd_client'  ,      // ?sort=id → ORDER BY cd_client
-    'name'    => 'nom_client' ,      // ?sort=name → ORDER BY nom_client
-    'country' => 'cd_pays'    ,
+    'id'      => 'customer_id'  ,      // ?sort=id → ORDER BY customer_id
+    'name'    => 'customer_name' ,      // ?sort=name → ORDER BY customer_name
+    'country' => 'country_code'    ,
 ]
 ```
 
 Three important properties:
 
 - A key missing from `SORTABLE` is **silently ignored**. That's the anti-injection guard on the `?sort=` parameter.
-- The public key can differ from the Progress name (`name` ↔ `nom_client`). Lets you expose a stable API even if the table is renamed.
+- The public key can differ from the Progress name (`name` ↔ `customer_name`). Lets you expose a stable API even if the table is renamed.
 - Direction `?sort=-name` (`-` prefix for `DESC`) is handled at the controller, not in the builder.
 
 ## Step 6 — pagination
@@ -183,10 +183,10 @@ Progress supports both syntaxes:
 
 ```sql
 -- SQL Server style
-SELECT TOP 50 * FROM PUB.clients_clients
+SELECT TOP 50 * FROM PUB.customers
 
 -- Standard SQL style
-SELECT * FROM PUB.clients_clients OFFSET 0 ROWS FETCH FIRST 50 ROWS ONLY
+SELECT * FROM PUB.customers OFFSET 0 ROWS FETCH FIRST 50 ROWS ONLY
 ```
 
 In the builder, you pass `SQL::LIMIT` and `SQL::OFFSET` to the model's `list()` method, and the framework picks the right form.
@@ -197,7 +197,7 @@ $customers->list([ SQL::LIMIT => 50 , SQL::OFFSET => 100 ]) ;
 
 ## All assembled — real DI definition
 
-Here's what a complete model definition looks like, as it lives in host applications:
+Here's what a complete model definition looks like, as it lives in a typical host application:
 
 ```php
 use app\enums\Databases ;

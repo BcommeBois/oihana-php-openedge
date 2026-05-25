@@ -49,7 +49,7 @@ In the typical host application — an API that exposes data from an ERP — **O
 Three reasons for this doctrine:
 
 1. **Source of truth elsewhere.** The ERP has its own client and its own ABL language for business mutations; the web API doesn't compete with that client.
-2. **Synchronisation, not dual write.** The `harvest:*` CLI commands read OpenEdge and write to a modern document database (ArangoDB in host applications); it's that document database that serves public writes, never OpenEdge.
+2. **Synchronisation, not dual write.** The `harvest:*` CLI commands read OpenEdge and write to a modern document database (ArangoDB in a typical host application); it's that document database that serves public writes, never OpenEdge.
 3. **Progress locking.** A production OpenEdge ERP has long-running ABL transactions that take locks; opening SQL writes in parallel exposes you to deadlock.
 
 This doctrine is carried by the **controller, not the model**: the `Documents` model still exposes `insert` / `update` / `upsert` / `replace` / `delete` / `truncate`, because CLI usage or migration scripts have a legitimate need. At library extraction time, if another project needs to mutate OpenEdge over HTTP, it can extend `DocumentsController` to add its verbs — the model layer is ready.

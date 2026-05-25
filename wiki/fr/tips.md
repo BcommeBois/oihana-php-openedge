@@ -39,14 +39,14 @@ Recueil des règles d'or à respecter quand on travaille avec `oihana/openedge`.
 ```php
 // ❌ Risque d'injection — la valeur est inlinée dans le SQL
 SQL::WHERE => [
-    SQL::COLUMN   => 'nom_client'      ,
+    SQL::COLUMN   => 'customer_name'      ,
     SQL::OPERATOR => '='               ,
     SQL::VALUE    => $_GET['search']   , // jamais ça
 ]
 
 // ✅ La valeur est bindée à l'exécution, PDO l'échappe correctement
 SQL::WHERE => [
-    SQL::COLUMN   => 'nom_client' ,
+    SQL::COLUMN   => 'customer_name' ,
     SQL::OPERATOR => '='          ,
     SQL::BIND     => 'search'     ,
 ]
@@ -74,12 +74,12 @@ $model->list([ SQL::BINDS => [ 'search' => $_GET['search'] ] ]) ;
 // ❌ Injection garantie sur ?sort=
 SQL::ORDER_BY => $_GET['sort']
 
-// ✅ Whitelist explicite ; ?sort=name → ORDER BY nom_client
-SQL::ORDER_BY => 'nom_client' ,
+// ✅ Whitelist explicite ; ?sort=name → ORDER BY customer_name
+SQL::ORDER_BY => 'customer_name' ,
 SQL::SORTABLE =>
 [
-    'id'   => 'cd_client'  ,
-    'name' => 'nom_client' ,
+    'id'   => 'customer_id'  ,
+    'name' => 'customer_name' ,
 ]
 ```
 
@@ -160,7 +160,7 @@ Voir [Alters](alters.md#pièges).
 
 ```sql
 -- Garder les employés sans département : (+) sur d, pas sur e
-WHERE e.cd_dept = d.cd_dept(+)
+WHERE e.department_id = d.department_id(+)
 ```
 
 Mnémotechnique : "*plus quelque chose qui n'est pas vraiment là*". Voir [Outer join Progress](progress/outer-join.md).
@@ -177,20 +177,20 @@ Si on voit des caractères accentués cassés (`é` au lieu de `é`), c'est ce p
 
 ### `(+) AND filtre` annule l'outer join
 
-**Règle.** Avec la syntaxe `(+)`, la jointure et le filtre vivent dans le même `WHERE`. Un filtre `AND d.libelle = 'X'` ajouté **élimine** les lignes où `d.libelle IS NULL`, ce qui annule l'effet de l'outer join.
+**Règle.** Avec la syntaxe `(+)`, la jointure et le filtre vivent dans le même `WHERE`. Un filtre `AND d.label = 'X'` ajouté **élimine** les lignes où `d.label IS NULL`, ce qui annule l'effet de l'outer join.
 
 ```sql
 -- ❌ Les employés sans département sont éliminés ici
-WHERE  e.cd_dept = d.cd_dept(+)
-  AND  d.libelle = 'VENTES'
+WHERE  e.department_id = d.department_id(+)
+  AND  d.label = 'SALES'
 
 -- ✅ Filtre compatible NULL
-WHERE  e.cd_dept = d.cd_dept(+)
-  AND  ( d.libelle = 'VENTES' OR d.libelle IS NULL )
+WHERE  e.department_id = d.department_id(+)
+  AND  ( d.label = 'SALES' OR d.label IS NULL )
 
 -- ✅✅ Mieux : LEFT JOIN avec ON
-FROM   PUB.employes e
-LEFT JOIN PUB.departements d ON e.cd_dept = d.cd_dept AND d.libelle = 'VENTES'
+FROM   PUB.employees e
+LEFT JOIN PUB.departments d ON e.department_id = d.department_id AND d.label = 'SALES'
 ```
 
 Voir [Outer join Progress](progress/outer-join.md#pièges-du-).
@@ -237,7 +237,7 @@ $customers->list([
 Sortie typique dans les logs :
 
 ```
-query    : SELECT clients.cd_client AS "id", clients.nom_client AS "name" FROM PUB.clients_clients clients ORDER BY nom_client DESC FETCH FIRST 50 ROWS ONLY
+query    : SELECT clients.customer_id AS "id", clients.customer_name AS "name" FROM PUB.customers clients ORDER BY customer_name DESC FETCH FIRST 50 ROWS ONLY
 bindVars : {"country":"FR"}
 ```
 
@@ -278,7 +278,7 @@ Raison : ces classes nécessitent une connexion PDO ODBC Progress, donc un drive
 
 ### Importer `OpenEdge as SQL`
 
-Le pattern dominant dans les applications consommatrices importe l'enum centrale `OpenEdge` sous l'alias court `SQL` pour la lisibilité :
+Le pattern dominant dans une application hôte typique importe l'enum centrale `OpenEdge` sous l'alias court `SQL` pour la lisibilité :
 
 ```php
 use oihana\openedge\enums\OpenEdge as SQL ;

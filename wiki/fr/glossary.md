@@ -96,11 +96,11 @@ Conteneur d'injection de dépendances conforme à PSR-11 (`Psr\Container\Contain
 
 ### Definition
 
-Fichier PHP qui retourne un tableau de définitions DI consommé par le conteneur. Dans les applications consommatrices, les *definitions* `oihana/openedge` vivent sous `definitions/...` (modèles HTTP) et `definitions/odbc/` (connexions PDO).
+Fichier PHP qui retourne un tableau de définitions DI consommé par le conteneur. Dans une application hôte typique, les *definitions* `oihana/openedge` vivent sous `definitions/...` (modèles HTTP) et `definitions/odbc/` (connexions PDO).
 
 ### Expression
 
-Unité de base produite par les helpers du framework : une chaîne de caractères qui représente un fragment SQL valide. Une expression peut être un littéral (`'42'`), un *bind* (`:userId`), une colonne qualifiée (`clients.cd_client`), une fonction (`CAST(price AS INTEGER)`), un `CASE WHEN`, une concaténation (`a || b`), etc. La fonction `expression()` est le point d'entrée polymorphe qui dispatche selon la forme du tableau d'entrée.
+Unité de base produite par les helpers du framework : une chaîne de caractères qui représente un fragment SQL valide. Une expression peut être un littéral (`'42'`), un *bind* (`:userId`), une colonne qualifiée (`clients.customer_id`), une fonction (`CAST(price AS INTEGER)`), un `CASE WHEN`, une concaténation (`a || b`), etc. La fonction `expression()` est le point d'entrée polymorphe qui dispatche selon la forme du tableau d'entrée.
 
 ### Facet
 
@@ -108,7 +108,7 @@ Unité de base produite par les helpers du framework : une chaîne de caractère
 
 ### Harvest
 
-Synchronisation lecture massive d'une table OpenEdge vers un système cible (cache, base documentaire, fichier). Dans les applications consommatrices, les commandes `harvest:*` lisent OpenEdge avec un modèle dédié (typiquement `Models::<X>_HARVEST`) qui projette les colonnes utiles, puis écrivent en cible. Voir [Modèles `Harvest`](harvest.md).
+Synchronisation lecture massive d'une table OpenEdge vers un système cible (cache, base documentaire, fichier). Dans une application hôte typique, les commandes `harvest:*` lisent OpenEdge avec un modèle dédié (typiquement `Models::<X>_HARVEST`) qui projette les colonnes utiles, puis écrivent en cible. Voir [Modèles `Harvest`](harvest.md).
 
 ### Modèle (`Documents`)
 

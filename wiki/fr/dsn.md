@@ -7,7 +7,7 @@ La classe [`OpenEdgeDSN`](../../src/oihana/openedge/db/OpenEdgeDSN.php) assemble
 Le driver SQL ODBC Progress attend un DSN sous la forme :
 
 ```
-odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=gcow0501;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
+odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=erp_database;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
 ```
 
 Trois inconvénients à manipuler cette chaîne directement :
@@ -26,7 +26,7 @@ Trois inconvénients à manipuler cette chaîne directement :
 | `driver` | `Driver` | `string` | Chemin absolu du binaire driver (`pgoe27.so` sous Linux). |
 | `hostName` | `HostName` | `string` | Nom DNS ou IP du serveur Progress. |
 | `portNumber` | `PortNumber` | `string\|int` | Port d'écoute du *broker* SQL pour cette base. Différent par base. |
-| `database` | `Database` | `string` | Nom de la base Progress (typiquement `gcow0501`, pas un chemin). |
+| `database` | `Database` | `string` | Nom de la base Progress (typiquement `erp_database`, pas un chemin). |
 | `charSet` | `IANAAppCodePage` | `int` | *Codepage* IANA pour la conversion de chaînes côté client. **Toujours `106` (UTF-8)** sauf cas particulier. |
 | `arraySize` | `ArraySize` | `?int` | Nombre de lignes fetch par aller-retour serveur. Défaut driver = 1. Recommandé en lecture massive : `200` à `5000`. |
 | `defaultLongDataBuffLen` | `DefaultLongDataBuffLen` | `?int` | Taille (en multiples de 1024) du tampon pour les colonnes longues (`CLOB`, `BLOB`, `LVARBINARY`). Défaut driver = 1024. |
@@ -62,7 +62,7 @@ Trois valeurs spéciales documentées par Progress :
 Paramètre de performance le plus sensible.
 
 - Une valeur trop basse multiplie les aller-retours réseau. Sur une *list* qui retourne 10 000 lignes avec `arraySize = 1`, on fait 10 000 aller-retours.
-- Une valeur trop haute alloue trop de RAM côté client : `arraySize × largeur_ligne × N_connexions` peut dépasser plusieurs gigaoctets.
+- Une valeur trop haute alloue trop de RAM côté client : `arraySize × row_width × N_connexions` peut dépasser plusieurs gigaoctets.
 
 Réglages recommandés :
 
@@ -91,14 +91,14 @@ $dsn = new OpenEdgeDSN
     'driver'   => '/usr/dlc/odbc/lib/pgoe27.so' ,
     'hostName' => 'erp.example.com'             ,
     'portNumber' => 20931                       ,
-    'database' => 'gcow0501'                    ,
+    'database' => 'erp_database'                    ,
     'charSet'  => 106                           ,
     'arraySize' => 200                          ,
     'queryTimeout' => 300                       ,
 ]) ;
 
 echo (string) $dsn ;
-// odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=gcow0501;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
+// odbc:Driver=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=erp_database;IANAAppCodePage=106;ArraySize=200;QueryTimeout=300
 ```
 
 L'ordre des paramètres dans la chaîne est fixé par `__toString()` :

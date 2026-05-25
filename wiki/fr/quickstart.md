@@ -26,7 +26,7 @@ $pdo = ( new OpenEdgePDOBuilder
     'logonID'  => 'reader'                      ,
     'password' => 'secret'                      ,
     // Bloc spécifique à la base ciblée
-    'database'   => 'gcow0501' ,
+    'database'   => 'erp_database' ,
     'portNumber' => 20931      ,
 ]) )() ;
 ```
@@ -54,10 +54,10 @@ Si l'un de ces attributs ne convient pas, on peut le surcharger après coup : `$
 
 ```php
 $stmt = $pdo->prepare( <<<SQL
-    SELECT cd_client , nom_client , dat_crt
-    FROM   PUB.clients_clients
-    WHERE  pays = :country
-    ORDER  BY nom_client
+    SELECT customer_id , customer_name , created_at
+    FROM   PUB.customers
+    WHERE  country_code = :country
+    ORDER  BY customer_name
     SQL
 ) ;
 
@@ -65,7 +65,7 @@ $stmt->execute([ 'country' => 'FR' ]) ;
 
 while ( $row = $stmt->fetch() )
 {
-    echo $row[ 'cd_client' ] . ' — ' . $row[ 'nom_client' ] . PHP_EOL ;
+    echo $row[ 'customer_id' ] . ' — ' . $row[ 'customer_name' ] . PHP_EOL ;
 }
 ```
 
@@ -89,15 +89,15 @@ $customers = new Documents( $container ,
     ModelParam::SCHEMA => Customer::class          , // hydratation optionnelle
     ModelParam::QUERY_BUILDER =>
     [
-        SQL::COLUMNS  => [ 'cd_client' , 'nom_client' , 'dat_crt' ] ,
-        SQL::FROM     => 'PUB.clients_clients' ,
+        SQL::COLUMNS  => [ 'customer_id' , 'customer_name' , 'created_at' ] ,
+        SQL::FROM     => 'PUB.customers' ,
         SQL::WHERE    => [ /* voir sql/sql-clauses.md */ ] ,
-        SQL::ORDER_BY => 'nom_client' ,
+        SQL::ORDER_BY => 'customer_name' ,
         SQL::SORTABLE => // whitelist autorisée en tri HTTP
         [
-            'id'   => 'cd_client'   ,
-            'name' => 'nom_client'  ,
-            'created' => 'dat_crt'  ,
+            'id'   => 'customer_id'   ,
+            'name' => 'customer_name'  ,
+            'created' => 'created_at'  ,
         ],
     ],
 ]) ;
@@ -111,17 +111,17 @@ $list = $customers->list
 ([
     SQL::LIMIT    => 50          ,
     SQL::OFFSET   => 0           ,
-    SQL::ORDER_BY => 'nom_client' ,
+    SQL::ORDER_BY => 'customer_name' ,
 ]) ;
 
 // Récupération par clé
-$one = $customers->get([ 'cd_client' => 1274 ]) ;
+$one = $customers->get([ 'customer_id' => 1274 ]) ;
 
 // Comptage
 $total = $customers->count() ;
 
 // Vérification d'existence
-$exists = $customers->exist([ 'cd_client' => 1274 ]) ;
+$exists = $customers->exist([ 'customer_id' => 1274 ]) ;
 
 // Stream paresseux pour les gros volumes (harvest)
 foreach ( $customers->stream([ SQL::LIMIT => 10000 ]) as $row )

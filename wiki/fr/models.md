@@ -51,9 +51,9 @@ $customers = new Documents( $container ,
     ModelParam::QUERY_BUILDER =>
     [
         SQL::COLUMNS  => [ /* … */ ] ,
-        SQL::FROM     => 'PUB.clients_clients clients' ,
+        SQL::FROM     => 'PUB.customers clients' ,
         SQL::WHERE    => [ /* … */ ] ,
-        SQL::ORDER_BY => 'nom_client'                  ,
+        SQL::ORDER_BY => 'customer_name'                  ,
         SQL::SORTABLE => [ /* whitelist */ ]           ,
     ],
 ]) ;
@@ -98,7 +98,7 @@ Récupère **une** ligne. La clé de lookup par défaut est `OpenEdge::ID` (mapp
 
 ```php
 $customer = $customers->get([ SQL::VALUE => 1274 ]) ;
-// → fetch sur cd_client = 1274 (selon le WHERE déclaré dans le builder)
+// → fetch sur customer_id = 1274 (selon le WHERE déclaré dans le builder)
 
 // Avec une clé différente
 $customer = $customers->get([
@@ -152,9 +152,9 @@ foreach ( $customers->stream([ SQL::LIMIT => 100000 ]) as $row )
 
 ```php
 $customers->insert([
-    'cd_client'   => 99999       ,
-    'nom_client'  => 'NEW CLIENT' ,
-    'cd_pays'     => 'FR'        ,
+    'customer_id'   => 99999       ,
+    'customer_name'  => 'NEW CLIENT' ,
+    'country_code'     => 'FR'        ,
 ]) ;
 ```
 
@@ -163,7 +163,7 @@ $customers->insert([
 ```php
 $customers->update([
     SQL::VALUE => 1274                          ,
-    'data'     => [ 'nom_client' => 'RENAMED' ] ,
+    'data'     => [ 'customer_name' => 'RENAMED' ] ,
 ]) ;
 ```
 

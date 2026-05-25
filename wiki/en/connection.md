@@ -1,6 +1,6 @@
 # ODBC connection and multi-database
 
-This page describes how to configure one (or several) Progress ODBC connection from a TOML file, register it as a service in a PHP-DI container, and consume it from models. It's the pattern used in production in host applications, which addresses an ERP database, an accounting database, a stats database, etc., on the same Progress server.
+This page describes how to configure one (or several) Progress ODBC connection from a TOML file, register it as a service in a PHP-DI container, and consume it from models. It's the recommended pattern when the host application addresses several Progress databases hosted on the same server (for example an ERP database and an analytics database).
 
 ## Vocabulary
 
@@ -13,7 +13,7 @@ The final DSN is the merge of both blocks. This split simplifies credential rota
 
 ## TOML configuration
 
-A typical multi-database configuration, taken from the host application.s `config.example.toml`:
+A typical multi-database configuration — a shared `[odbc]` block, then one `[databases.<name>]` section per Progress database:
 
 ```toml
 [odbc]
@@ -25,32 +25,22 @@ queryTimeout = 300         # seconds; -1 for no timeout
 logonID      = "reader"
 password     = "secret"
 
-[databases.accounting]
-database   = "pocw0501"
-portNumber = 20929
-
-[databases.common]
-database   = "cmnbney"
-portNumber = 20930
-
 [databases.erp]
-database   = "gcow0501"
+database   = "erp_database"
 portNumber = 20931
 
-[databases.stats]
-database   = "stat0501"
+[databases.analytics]
+database   = "analytics_database"
 portNumber = 20932
-
-[databases.temps]
-database   = "tps0501"
-portNumber = 20933
 ```
+
+Both databases share the same `[odbc]` block (same host, same credentials, same driver) and only differ on `database` and `portNumber`. To add a third database, append another `[databases.<name>]` section.
 
 > **Security tip.** `logonID` and `password` are secrets: don't commit the real `config.toml`, keep a `config.example.toml` with placeholders, and resolve sensitive values through a vault (env vars, `secrets/` file, Vault, etc.) at boot.
 
 ## PDO service per database
 
-In host applications, each database has its own DI definition file under `definitions/odbc/<database>.php`. All these files share the same structure:
+Recommended convention: each database has its own DI definition file under `definitions/odbc/<database>.php`. All these files share the same structure:
 
 ```php
 // definitions/odbc/erp.php
@@ -72,9 +62,9 @@ return
 
 Three things to notice:
 
-1. **Spread operator to merge the blocks.** `[ ...$shared , ...$database ]` produces a single flat array consumed by `OpenEdgePDOBuilder`. The database block's keys override the shared block's keys, which allows you to override a parameter for a single database (e.g. a specific `queryTimeout` for the stats database).
+1. **Spread operator to merge the blocks.** `[ ...$shared , ...$database ]` produces a single flat array consumed by `OpenEdgePDOBuilder`. The database block's keys override the shared block's keys, which allows you to override a parameter for a single database (e.g. a specific `queryTimeout` for the analytics database).
 2. **`OpenEdgePDOBuilder` is invokable.** The trailing `()` calls `__invoke()`, which returns the PDO instance. The registered service is thus the PDO directly, not the factory.
-3. **The service is lazy by default.** Until a model asks for the ERP database, the closure isn't invoked and no ODBC connection is opened. Important when you declare five databases but a given HTTP request only touches one.
+3. **The service is lazy by default.** Until a model asks for the ERP database, the closure isn't invoked and no ODBC connection is opened. Important when you declare several databases but a given HTTP request only touches one.
 
 ### Why one file per database
 
@@ -102,8 +92,8 @@ new Documents( $container ,
     ModelParam::SCHEMA => Customer::class     ,
     ModelParam::QUERY_BUILDER =>
     [
-        SQL::FROM    => 'PUB.clients_clients' ,
-        SQL::COLUMNS => [ 'cd_client' , 'nom_client' ] ,
+        SQL::FROM    => 'PUB.customers' ,
+        SQL::COLUMNS => [ 'customer_id' , 'customer_name' ] ,
     ],
 ]) ;
 ```
@@ -121,15 +111,15 @@ A model is attached to **one** PDO. If an HTTP request needs to cross two databa
 
 ```php
 $customers = new Documents( $container , [
-    ModelParam::PDO    => Databases::ODBC_ERP        ,
-    ModelParam::SCHEMA => Customer::class            ,
-    ModelParam::QUERY_BUILDER => [ /* ... */ ]       ,
+    ModelParam::PDO    => Databases::ODBC_ERP       ,
+    ModelParam::SCHEMA => Customer::class           ,
+    ModelParam::QUERY_BUILDER => [ /* ... */ ]      ,
 ]) ;
 
-$accountingDocs = new Documents( $container , [
-    ModelParam::PDO    => Databases::ODBC_ACCOUNTING ,
-    ModelParam::SCHEMA => AccountingEntry::class     ,
-    ModelParam::QUERY_BUILDER => [ /* ... */ ]       ,
+$reports = new Documents( $container , [
+    ModelParam::PDO    => Databases::ODBC_ANALYTICS ,
+    ModelParam::SCHEMA => Report::class             ,
+    ModelParam::QUERY_BUILDER => [ /* ... */ ]      ,
 ]) ;
 ```
 
@@ -144,8 +134,8 @@ Before suspecting PHP code, it's useful to prove the DSN and credentials are goo
 ls /usr/dlc/odbc/lib/pgoe27.so
 
 # Connection test through isql (unixodbc-bin package)
-echo "SELECT TOP 1 cd_client FROM PUB.clients_clients" | \
-isql -v "DRIVER=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=gcow0501;IANAAppCodePage=106" \
+echo "SELECT TOP 1 customer_id FROM PUB.customers" | \
+isql -v "DRIVER=/usr/dlc/odbc/lib/pgoe27.so;HostName=erp.example.com;PortNumber=20931;Database=erp_database;IANAAppCodePage=106" \
      "reader" "secret"
 ```
 

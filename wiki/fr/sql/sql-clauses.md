@@ -49,7 +49,7 @@ Gère la chaîne `FROM` du builder, qui peut inclure les jointures inline.
 use oihana\openedge\enums\OpenEdge as SQL ;
 
 new OpenEdgeQueryBuilder([
-    SQL::FROM => 'PUB.clients_clients clients LEFT JOIN PUB.pays_pays pays ON clients.cd_pays = pays.cd_pays' ,
+    SQL::FROM => 'PUB.customers clients LEFT JOIN PUB.countries pays ON clients.country_code = pays.country_code' ,
 ]) ;
 ```
 
@@ -65,8 +65,8 @@ SQL::WHERE =>
     SQL::LOGIC      => Logic::AND ,
     SQL::CONDITIONS =>
     [
-        [ SQL::COLUMN => 'actif'   , SQL::OPERATOR => '=' , SQL::VALUE => 1        ] ,
-        [ SQL::COLUMN => 'cd_pays' , SQL::OPERATOR => '=' , SQL::BIND  => 'country' ] ,
+        [ SQL::COLUMN => 'active'   , SQL::OPERATOR => '=' , SQL::VALUE => 1        ] ,
+        [ SQL::COLUMN => 'country_code' , SQL::OPERATOR => '=' , SQL::BIND  => 'country' ] ,
     ]
 ]
 ```
@@ -78,10 +78,10 @@ Voir [Prédicats SQL](sql-predicates.md) pour le détail des formes acceptées.
 Gère `GROUP BY` et son optionnelle clause `HAVING`.
 
 ```php
-SQL::GROUP_BY => [ 'cd_pays' , 'segment' ] ,
+SQL::GROUP_BY => [ 'country_code' , 'segment' ] ,
 SQL::HAVING   =>
 [
-    SQL::COLUMN   => 'cd_pays' ,
+    SQL::COLUMN   => 'country_code' ,
     SQL::OPERATOR => '<>'      ,
     SQL::VALUE    => 'XX'      ,
 ]
@@ -94,11 +94,11 @@ SQL::HAVING   =>
 Gère le tri par défaut **et** la *whitelist* `SORTABLE`.
 
 ```php
-SQL::ORDER_BY => 'nom_client'         , // tri par défaut côté serveur
+SQL::ORDER_BY => 'customer_name'         , // tri par défaut côté serveur
 SQL::SORTABLE =>
 [
-    'id'   => 'cd_client'  ,             // ?sort=id → ORDER BY cd_client
-    'name' => 'nom_client' ,             // ?sort=name → ORDER BY nom_client
+    'id'   => 'customer_id'  ,             // ?sort=id → ORDER BY customer_id
+    'name' => 'customer_name' ,             // ?sort=name → ORDER BY customer_name
 ]
 ```
 
@@ -111,14 +111,14 @@ Gère la liste de colonnes du `SELECT`. Accepte un tableau de définitions d'exp
 ```php
 SQL::COLUMNS =>
 [
-    [ SQL::COLUMN => 'cd_client'  , SQL::TABLE => 'clients' , SQL::ALIAS => 'id'   ] ,
-    [ SQL::COLUMN => 'nom_client' , SQL::TABLE => 'clients' , SQL::ALIAS => 'name' ] ,
+    [ SQL::COLUMN => 'customer_id'  , SQL::TABLE => 'clients' , SQL::ALIAS => 'id'   ] ,
+    [ SQL::COLUMN => 'customer_name' , SQL::TABLE => 'clients' , SQL::ALIAS => 'name' ] ,
     [
         SQL::CONCAT =>
         [
-            [ SQL::COLUMN => 'prenom_client' , SQL::TABLE => 'clients' ] ,
+            [ SQL::COLUMN => 'first_name' , SQL::TABLE => 'clients' ] ,
             ' '                                                            ,
-            [ SQL::COLUMN => 'nom_client'    , SQL::TABLE => 'clients' ] ,
+            [ SQL::COLUMN => 'customer_name'    , SQL::TABLE => 'clients' ] ,
         ],
         SQL::ALIAS => 'fullName' ,
     ],

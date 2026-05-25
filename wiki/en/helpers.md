@@ -149,9 +149,9 @@ Produces `AS "alias"` (with quotes to preserve case) or `AS alias` (without quot
 ```php
 use function oihana\openedge\db\helpers\asAlias ;
 
-asAlias( 'cd_client'  )                  ; // cd_client
-asAlias( 'cd_client' , 'id' )            ; // cd_client AS "id"
-asAlias( 'cd_client' , 'id' , false )    ; // cd_client AS id
+asAlias( 'customer_id'  )                  ; // customer_id
+asAlias( 'customer_id' , 'id' )            ; // customer_id AS "id"
+asAlias( 'customer_id' , 'id' , false )    ; // customer_id AS id
 ```
 
 > **Recommendation.** Keep `caseSensitive = true` (default) to preserve case on the API side. Without quotes, Progress uppercases everything — `id` becomes `ID` in results.
@@ -202,11 +202,11 @@ searchCondition
     OpenEdge::OPERATOR   => 'AND' ,
     OpenEdge::CONDITIONS =>
     [
-        [ OpenEdge::COLUMN => 'actif'   , OpenEdge::OPERATOR => '=' , OpenEdge::VALUE => 1     ] ,
-        [ OpenEdge::COLUMN => 'cd_pays' , OpenEdge::OPERATOR => '=' , OpenEdge::BIND  => 'c'   ] ,
+        [ OpenEdge::COLUMN => 'active'   , OpenEdge::OPERATOR => '=' , OpenEdge::VALUE => 1     ] ,
+        [ OpenEdge::COLUMN => 'country_code' , OpenEdge::OPERATOR => '=' , OpenEdge::BIND  => 'c'   ] ,
     ]
 ]) ;
-// → actif = 1 AND cd_pays = :c
+// → active = 1 AND country_code = :c
 ```
 
 See [SQL predicates](sql/sql-predicates.md) for accepted condition forms.

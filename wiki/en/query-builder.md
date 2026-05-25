@@ -34,12 +34,12 @@ $builder = new OpenEdgeQueryBuilder
     SQL::COUNTER      => '*'               , // for count(*)
     SQL::COLUMNS      => [ /* … */ ]       ,
     SQL::DISTINCT     => false             ,
-    SQL::FROM         => 'PUB.clients clients' ,
+    SQL::FROM         => 'PUB.customers clients' ,
     SQL::GROUP_BY     => null              ,
     SQL::JOINS        => null              ,
     SQL::LOCKING_HINT => 'WITH (NOLOCK)'   ,
     SQL::NO_REORDER   => false             ,
-    SQL::ORDER_BY     => 'nom_client'      ,
+    SQL::ORDER_BY     => 'customer_name'      ,
     SQL::QUERY        => null              , // if set, short-circuits everything else
     SQL::SORTABLE     => [ /* whitelist */ ] ,
     SQL::WHERE        => [ /* … */ ]       ,
@@ -93,8 +93,8 @@ Builds the `COUNT(...)` clause. The argument is read from `SQL::COUNTER` or the 
 echo $builder->count() ;
 // COUNT(*)
 
-echo $builder->count([ SQL::COUNTER => 'cd_pays' ]) ;
-// COUNT(cd_pays)
+echo $builder->count([ SQL::COUNTER => 'country_code' ]) ;
+// COUNT(country_code)
 ```
 
 ### `columnList( array $init = [] ): string`
@@ -138,7 +138,7 @@ When the `$query` property (or `SQL::QUERY` at the constructor) is non-null, **a
 
 ```php
 $builder = new OpenEdgeQueryBuilder([
-    SQL::QUERY => 'SELECT cd_client FROM PUB.clients_clients WHERE actif = 1' ,
+    SQL::QUERY => 'SELECT customer_id FROM PUB.customers WHERE active = 1' ,
 ]) ;
 ```
 
@@ -155,12 +155,12 @@ use oihana\openedge\enums\OpenEdge as SQL  ;
 $builder = new OpenEdgeQueryBuilder
 ([
     SQL::COLUMNS => [
-        [ SQL::COLUMN => 'cd_pays' , SQL::ALIAS => 'country' ] ,
+        [ SQL::COLUMN => 'country_code' , SQL::ALIAS => 'country' ] ,
         [ SQL::COLUMN => 'COUNT(*)' , SQL::ALIAS => 'n' ] ,
     ],
-    SQL::FROM     => 'PUB.clients_clients' ,
-    SQL::GROUP_BY => 'cd_pays' ,
-    SQL::ORDER_BY => 'cd_pays' ,
+    SQL::FROM     => 'PUB.customers' ,
+    SQL::GROUP_BY => 'country_code' ,
+    SQL::ORDER_BY => 'country_code' ,
 ]) ;
 
 $bindVars = [] ;
@@ -193,7 +193,7 @@ $customers->list([
 Typical output:
 
 ```
-query    : SELECT clients.cd_client AS "id", clients.nom_client AS "name" FROM PUB.clients_clients clients ORDER BY nom_client DESC FETCH FIRST 50 ROWS ONLY
+query    : SELECT clients.customer_id AS "id", clients.customer_name AS "name" FROM PUB.customers clients ORDER BY customer_name DESC FETCH FIRST 50 ROWS ONLY
 bindVars : {"country":"FR"}
 ```
 

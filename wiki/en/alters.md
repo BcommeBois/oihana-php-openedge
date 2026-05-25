@@ -1,6 +1,6 @@
 # Alters and denormalisation
 
-The [`Documents`](models.md) model's `alters` system lets you apply **post-fetch transformations** to data brought back by PDO before the model returns it to the caller. It's the tool used to normalise types (`'1'` → `1`), to hydrate references (`cd_pays = 'FR'` → `{ id: 'FR', name: 'France' }`), to enrich with a canonical URL, or to apply business logic (`Alter::CALL`).
+The [`Documents`](models.md) model's `alters` system lets you apply **post-fetch transformations** to data brought back by PDO before the model returns it to the caller. It's the tool used to normalise types (`'1'` → `1`), to hydrate references (`country_code = 'FR'` → `{ id: 'FR', name: 'France' }`), to enrich with a canonical URL, or to apply business logic (`Alter::CALL`).
 
 This complements [`CAST`](sql/sql-functions-casts.md) on the SQL side: `CAST` transforms **server-side**, `Alters` transforms **PHP-side** after reception.
 
@@ -114,7 +114,7 @@ If multiple `Alters` are declared on the same key, **only the last** is kept (ar
 
 ## Composed pattern — full example
 
-Simplified excerpt from a `Customer` model definition in host applications:
+Simplified excerpt from a `Customer` model definition in a typical host application:
 
 ```php
 ModelParam::ALTERS =>
@@ -145,7 +145,7 @@ A single outgoing JSON row can thus contain a dozen denormalised references, eac
 
 ### 1. Lookup loop
 
-If the target model of an `Alter::GET` itself has an `Alters` pointing back to the source model, you get into an infinite loop. In practice: never declare a crossed `Alter::GET` between two models. Prefer a "Plain" model (`Models::*_PLAIN`) that has no `Alters` at all as the lookup target — a pattern visible in host applications (`WAREHOUSES_PLAIN`, `SUBSIDIARIES_SELLERS_PLAIN`).
+If the target model of an `Alter::GET` itself has an `Alters` pointing back to the source model, you get into an infinite loop. In practice: never declare a crossed `Alter::GET` between two models. Prefer a "Plain" model (`Models::*_PLAIN`) that has no `Alters` at all as the lookup target — a pattern visible in a typical host application (`WAREHOUSES_PLAIN`, `SUBSIDIARIES_SELLERS_PLAIN`).
 
 ### 2. Hidden N+1
 

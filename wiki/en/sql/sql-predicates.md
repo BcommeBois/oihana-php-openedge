@@ -43,12 +43,12 @@ use oihana\openedge\db\enums\RelationalOperator ;
 use oihana\openedge\enums\OpenEdge as SQL ;
 
 [
-    SQL::COLUMN   => 'cd_pays'                  ,
+    SQL::COLUMN   => 'country_code'                  ,
     SQL::TABLE    => 'clients'                  ,
     SQL::OPERATOR => RelationalOperator::EQUAL  ,
     SQL::BIND     => 'country'                  ,
 ]
-// → clients.cd_pays = :country
+// → clients.country_code = :country
 ```
 
 Accepted operators: `=`, `<>`, `<`, `>`, `<=`, `>=` (see [`RelationalOperator`](sql-operators.md#relationaloperator)).
@@ -59,7 +59,7 @@ Inclusive bounded interval.
 
 ```php
 [
-    SQL::COLUMN    => 'dat_crt'             ,
+    SQL::COLUMN    => 'created_at'             ,
     SQL::TABLE     => 'clients'             ,
     SQL::PREDICATE => Predicate::BETWEEN    ,
     SQL::VALUE     =>
@@ -68,7 +68,7 @@ Inclusive bounded interval.
         [ SQL::BIND => 'dateMax' ] ,
     ],
 ]
-// → clients.dat_crt BETWEEN :dateMin AND :dateMax
+// → clients.created_at BETWEEN :dateMin AND :dateMax
 ```
 
 `Predicate::NOT_BETWEEN` variant produces `NOT BETWEEN`. Bounds are inclusive in Progress.
@@ -79,11 +79,11 @@ List membership.
 
 ```php
 [
-    SQL::COLUMN    => 'cd_pays'         ,
+    SQL::COLUMN    => 'country_code'         ,
     SQL::PREDICATE => Predicate::IN     ,
     SQL::VALUE     => [ 'FR' , 'BE' , 'LU' ] ,
 ]
-// → cd_pays IN ('FR', 'BE', 'LU')
+// → country_code IN ('FR', 'BE', 'LU')
 ```
 
 For a **parameterised** list (from user input), each value has to be bound — `IN (:c1, :c2, :c3)` — and the matching binds passed at execution. The framework doesn't automatically handle bound lists because the number of values changes per request (which invalidates Progress's query plan).
@@ -99,11 +99,11 @@ Pattern-based text search. Standard SQL wildcards:
 
 ```php
 [
-    SQL::COLUMN    => 'nom_client'        ,
+    SQL::COLUMN    => 'customer_name'        ,
     SQL::PREDICATE => Predicate::LIKE     ,
     SQL::BIND      => 'pattern'           ,
 ]
-// → nom_client LIKE :pattern
+// → customer_name LIKE :pattern
 ```
 
 At execution, build the pattern:
@@ -119,7 +119,7 @@ $stmt->execute([ 'pattern' => 'Dur%' ]) ;
 > SQL::PREDICATE => Predicate::LIKE ,
 > SQL::BIND      => 'pattern' ,
 > SQL::ESCAPE    => '\\' ,
-> // → nom_client LIKE :pattern ESCAPE '\'
+> // → customer_name LIKE :pattern ESCAPE '\'
 > ```
 
 ## `prepareNullPredicate` {#prepare-null}
@@ -128,16 +128,16 @@ Explicit null test.
 
 ```php
 [
-    SQL::COLUMN    => 'cd_pays'           ,
+    SQL::COLUMN    => 'country_code'           ,
     SQL::PREDICATE => Predicate::NULL     ,
 ]
-// → cd_pays IS NULL
+// → country_code IS NULL
 
 [
-    SQL::COLUMN    => 'cd_pays'           ,
+    SQL::COLUMN    => 'country_code'           ,
     SQL::PREDICATE => Predicate::NOT_NULL ,
 ]
-// → cd_pays IS NOT NULL
+// → country_code IS NOT NULL
 ```
 
 > **Classic pitfall.** `col = NULL` never works in standard SQL (always evaluates to `UNKNOWN`). Always use `IS NULL` / `IS NOT NULL`.
@@ -149,9 +149,9 @@ Subquery existence test. The subquery content is passed as-is (the framework doe
 ```php
 [
     SQL::PREDICATE => Predicate::EXISTS ,
-    SQL::QUERY     => 'SELECT 1 FROM PUB.commandes c WHERE c.cd_client = clients.cd_client' ,
+    SQL::QUERY     => 'SELECT 1 FROM PUB.orders c WHERE c.customer_id = clients.customer_id' ,
 ]
-// → EXISTS ( SELECT 1 FROM PUB.commandes c WHERE c.cd_client = clients.cd_client )
+// → EXISTS ( SELECT 1 FROM PUB.orders c WHERE c.customer_id = clients.customer_id )
 ```
 
 `Predicate::NOT_EXISTS` variant produces `NOT EXISTS`.
@@ -164,12 +164,12 @@ Comparison against a set returned by a subquery.
 use oihana\openedge\db\enums\QuantifiedOperator ;
 
 [
-    SQL::COLUMN    => 'montant'                  ,
+    SQL::COLUMN    => 'amount'                  ,
     SQL::OPERATOR  => RelationalOperator::GREATER_THAN ,
     SQL::QUANTIFIED => QuantifiedOperator::ALL   ,
-    SQL::QUERY     => 'SELECT seuil FROM PUB.seuils_alerte' ,
+    SQL::QUERY     => 'SELECT threshold FROM PUB.alert_thresholds' ,
 ]
-// → montant > ALL ( SELECT seuil FROM PUB.seuils_alerte )
+// → amount > ALL ( SELECT threshold FROM PUB.alert_thresholds )
 ```
 
 Three quantifiers available:

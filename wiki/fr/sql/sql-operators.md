@@ -25,11 +25,11 @@ Utilisation typique dans une condition :
 use oihana\openedge\enums\OpenEdge as SQL ;
 
 [
-    SQL::COLUMN   => 'montant'                              ,
+    SQL::COLUMN   => 'amount'                              ,
     SQL::OPERATOR => RelationalOperator::GREATER_THAN_OR_EQUAL ,
     SQL::BIND     => 'minAmount'                            ,
 ]
-// → montant >= :minAmount
+// → amount >= :minAmount
 ```
 
 ## `Logic`
@@ -56,18 +56,18 @@ SQL::WHERE =>
     SQL::LOGIC      => Logic::AND ,
     SQL::CONDITIONS =>
     [
-        [ SQL::COLUMN => 'actif'   , SQL::OPERATOR => '=' , SQL::VALUE => 1 ] ,
+        [ SQL::COLUMN => 'active'   , SQL::OPERATOR => '=' , SQL::VALUE => 1 ] ,
         [
             SQL::LOGIC => Logic::OR ,
             SQL::CONDITIONS =>
             [
-                [ SQL::COLUMN => 'cd_pays' , SQL::OPERATOR => '=' , SQL::VALUE => 'FR' ] ,
-                [ SQL::COLUMN => 'cd_pays' , SQL::OPERATOR => '=' , SQL::VALUE => 'BE' ] ,
+                [ SQL::COLUMN => 'country_code' , SQL::OPERATOR => '=' , SQL::VALUE => 'FR' ] ,
+                [ SQL::COLUMN => 'country_code' , SQL::OPERATOR => '=' , SQL::VALUE => 'BE' ] ,
             ],
         ],
     ],
 ]
-// → actif = 1 AND ( cd_pays = 'FR' OR cd_pays = 'BE' )
+// → active = 1 AND ( country_code = 'FR' OR country_code = 'BE' )
 ```
 
 L'imbrication peut aller à n niveaux. Le framework parenthèse automatiquement chaque groupe.
@@ -88,15 +88,15 @@ use oihana\openedge\db\enums\QuantifiedOperator ;
 
 ```php
 [
-    SQL::COLUMN     => 'montant'                              ,
+    SQL::COLUMN     => 'amount'                              ,
     SQL::OPERATOR   => RelationalOperator::GREATER_THAN       ,
     SQL::QUANTIFIED => QuantifiedOperator::ALL                ,
-    SQL::QUERY      => 'SELECT seuil FROM PUB.seuils_alerte'  ,
+    SQL::QUERY      => 'SELECT threshold FROM PUB.alert_thresholds'  ,
 ]
-// → montant > ALL ( SELECT seuil FROM PUB.seuils_alerte )
+// → amount > ALL ( SELECT threshold FROM PUB.alert_thresholds )
 ```
 
-Cas d'usage typique : "ce montant est-il supérieur à tous les seuils d'alerte existants ?". Sur de gros volumes, préférer `MAX()` + une comparaison directe : `montant > ( SELECT MAX(seuil) FROM PUB.seuils_alerte )`.
+Cas d'usage typique : "ce montant est-il supérieur à tous les seuils d'alerte existants ?". Sur de gros volumes, préférer `MAX()` + une comparaison directe : `amount > ( SELECT MAX(threshold) FROM PUB.alert_thresholds )`.
 
 ## `ConcatOperator`
 
@@ -118,12 +118,12 @@ En pratique, on n'utilise presque jamais ces constantes directement : le helper 
 echo expression([
     SQL::CONCAT =>
     [
-        [ SQL::COLUMN => 'prenom_client' ] ,
+        [ SQL::COLUMN => 'first_name' ] ,
         ' '                                  ,
-        [ SQL::COLUMN => 'nom_client'    ] ,
+        [ SQL::COLUMN => 'customer_name'    ] ,
     ]
 ]) ;
-// → prenom_client || ' ' || nom_client
+// → first_name || ' ' || customer_name
 ```
 
 ### Séparateur personnalisé
@@ -135,11 +135,11 @@ echo expression([
     SQL::SEPARATOR => ';' ,
     SQL::LIST      =>
     [
-        [ SQL::COLUMN => 'prenom_client' ] ,
-        [ SQL::COLUMN => 'nom_client'    ] ,
+        [ SQL::COLUMN => 'first_name' ] ,
+        [ SQL::COLUMN => 'customer_name'    ] ,
     ]
 ]) ;
-// → prenom_client || ';' || nom_client
+// → first_name || ';' || customer_name
 ```
 
 > Pour concaténer plus proprement, surtout côté Progress, préférer la fonction `CONCAT(a, b)` plutôt que l'opérateur `||` quand on n'a que deux opérandes. Voir [`concat()`](sql-functions-strings.md#concat).

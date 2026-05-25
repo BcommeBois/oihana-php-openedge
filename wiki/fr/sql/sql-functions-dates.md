@@ -87,14 +87,14 @@ Pour les fonctions de date qui prennent des arguments (la grande majorité), le 
 use oihana\openedge\db\enums\functions\DateFunction ;
 use function oihana\openedge\db\helpers\functions\dateExpression ;
 
-// YEAR(dat_crt)
-echo dateExpression( DateFunction::YEAR , 'dat_crt' ) ;
+// YEAR(created_at)
+echo dateExpression( DateFunction::YEAR , 'created_at' ) ;
 
-// ADD_MONTHS(dat_crt, 3)
-echo dateExpression( DateFunction::ADD_MONTHS , [ 'dat_crt' , 3 ] ) ;
+// ADD_MONTHS(created_at, 3)
+echo dateExpression( DateFunction::ADD_MONTHS , [ 'created_at' , 3 ] ) ;
 
-// MONTHS_BETWEEN(dat_fin, dat_crt)
-echo dateExpression( DateFunction::MONTHS_BETWEEN , [ 'dat_fin' , 'dat_crt' ] ) ;
+// MONTHS_BETWEEN(end_date, created_at)
+echo dateExpression( DateFunction::MONTHS_BETWEEN , [ 'end_date' , 'created_at' ] ) ;
 ```
 
 Le helper accepte soit un argument unique (chaîne), soit un tableau d'arguments.
@@ -115,7 +115,7 @@ SQL::WHERE =>
     SQL::CONDITIONS =>
     [
         [
-            SQL::COLUMN   => 'dat_crt' ,
+            SQL::COLUMN   => 'created_at' ,
             SQL::TABLE    => 'clients' ,
             SQL::ALTER    => DateFunction::YEAR ,
             SQL::OPERATOR => '=' ,
@@ -126,19 +126,19 @@ SQL::WHERE =>
         ],
     ],
 ]
-// → YEAR(clients.dat_crt) = YEAR(CURDATE())
+// → YEAR(clients.created_at) = YEAR(CURDATE())
 ```
 
 ### Différence entre deux dates en mois
 
 ```php
 echo expression([
-    SQL::COLUMN => 'dat_fin'                  ,
+    SQL::COLUMN => 'end_date'                  ,
     SQL::TABLE  => 'contrats'                 ,
     SQL::ALTER  => DateFunction::MONTHS_BETWEEN ,
-    SQL::VALUE  => 'contrats.dat_crt'         ,
+    SQL::VALUE  => 'contracts.created_at'         ,
 ]) ;
-// → MONTHS_BETWEEN(contrats.dat_fin, contrats.dat_crt)
+// → MONTHS_BETWEEN(contracts.end_date, contracts.created_at)
 ```
 
 ## Helpers de bas niveau

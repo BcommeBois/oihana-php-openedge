@@ -19,7 +19,7 @@ This page documents the pattern on the **OpenEdge source model** side. The CLI c
 
 ## Defining a Harvest model
 
-Convention in host applications: one `harvest.php` file per entity, alongside the main file. Example `customers/harvest.php`:
+Convention in a typical host application: one `harvest.php` file per entity, alongside the main file. Example `customers/harvest.php`:
 
 ```php
 use DI\Container ;
@@ -142,7 +142,7 @@ ModelParam::QUERY_BUILDER =>
     SQL::LOCKING_HINT => LockingHint::WITH_NOLOCK ,
     SQL::WHERE        =>
     [
-        SQL::COLUMN   => 'dat_maj'    ,
+        SQL::COLUMN   => 'updated_at'    ,
         SQL::OPERATOR => '>='         ,
         SQL::BIND     => 'since'      ,
     ],

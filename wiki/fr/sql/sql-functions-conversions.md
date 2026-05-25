@@ -17,7 +17,7 @@ L'enum [`ConversionFunction`](../../../src/oihana/openedge/db/enums/functions/Co
 
 Règle pratique :
 
-- Quand la valeur **doit** être convertible (ex: `cd_client DECIMAL → VARCHAR` pour normalisation API), utiliser `CAST`. Un échec révèle un bug de donnée à corriger.
+- Quand la valeur **doit** être convertible (ex: `customer_id DECIMAL → VARCHAR` pour normalisation API), utiliser `CAST`. Un échec révèle un bug de donnée à corriger.
 - Quand la valeur **peut** ne pas être convertible (ex: une chaîne saisie utilisateur convertie en date), utiliser `TO_*`. Le `NULL` produit en sortie peut être géré par `COALESCE`/`NVL`.
 
 ## `TO_CHAR()` {#to_char}
@@ -27,14 +27,14 @@ Convertit une expression vers `CHAR`, avec un masque de format optionnel. C'est 
 ```php
 use function oihana\openedge\db\helpers\functions\conversions\toChar ;
 
-echo toChar( 'dat_crt' ) ;
-// TO_CHAR(dat_crt)
+echo toChar( 'created_at' ) ;
+// TO_CHAR(created_at)
 
-echo toChar( 'dat_crt' , "'YYYY-MM-DD'" ) ;
-// TO_CHAR(dat_crt, 'YYYY-MM-DD')
+echo toChar( 'created_at' , "'YYYY-MM-DD'" ) ;
+// TO_CHAR(created_at, 'YYYY-MM-DD')
 
-echo toChar( 'prix_ht' , "'999G990D00'" ) ;
-// TO_CHAR(prix_ht, '999G990D00')  → "  1 234,56" (séparateur locale)
+echo toChar( 'net_price' , "'999G990D00'" ) ;
+// TO_CHAR(net_price, '999G990D00')  → "  1 234,56" (séparateur locale)
 ```
 
 ### Masques de format de date courants
@@ -69,8 +69,8 @@ use function oihana\openedge\db\helpers\functions\conversions\toDate ;
 echo toDate( "'2026-05-19'" , "'YYYY-MM-DD'" ) ;
 // TO_DATE('2026-05-19', 'YYYY-MM-DD')
 
-echo toDate( 'dat_str' , "'DD/MM/YYYY'" ) ;
-// TO_DATE(dat_str, 'DD/MM/YYYY')
+echo toDate( 'date_str' , "'DD/MM/YYYY'" ) ;
+// TO_DATE(date_str, 'DD/MM/YYYY')
 ```
 
 Retourne `NULL` si la chaîne ne matche pas le format.
@@ -115,7 +115,7 @@ Le masque est optionnel mais nécessaire quand le séparateur n'est pas le `.` s
 
 ## Pattern d'usage typique
 
-Dans les applications consommatrices, `TO_CHAR` est très utilisé pour exposer une date ISO 8601 côté API à partir d'une colonne `DATE` Progress :
+Dans une application hôte typique, `TO_CHAR` est très utilisé pour exposer une date ISO 8601 côté API à partir d'une colonne `DATE` Progress :
 
 ```php
 use oihana\openedge\db\enums\functions\ConversionFunction ;
@@ -124,7 +124,7 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 SQL::COLUMNS =>
 [
     [
-        SQL::COLUMN => 'dat_crt'                      ,
+        SQL::COLUMN => 'created_at'                      ,
         SQL::TABLE  => 'clients'                      ,
         SQL::ALTER  => [
             ConversionFunction::TO_CHAR ,
@@ -133,7 +133,7 @@ SQL::COLUMNS =>
         SQL::ALIAS  => 'created' ,
     ],
 ]
-// → TO_CHAR(clients.dat_crt, 'YYYY-MM-DD') AS "created"
+// → TO_CHAR(clients.created_at, 'YYYY-MM-DD') AS "created"
 ```
 
 ## `CONVERT` et `DECODE` — non exposés en helpers

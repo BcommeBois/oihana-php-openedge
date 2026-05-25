@@ -24,8 +24,8 @@ OpenEdge exposes 23 numeric functions (arithmetic, trigonometry, rounding, scala
 ```php
 use function oihana\openedge\db\helpers\functions\numerics\abs ;
 
-echo abs( 'montant' ) ;
-// ABS(montant)
+echo abs( 'amount' ) ;
+// ABS(amount)
 ```
 
 ### `SIGN`
@@ -48,8 +48,8 @@ Smallest integer greater than or equal to.
 ```php
 use function oihana\openedge\db\helpers\functions\numerics\ceiling ;
 
-echo ceiling( 'prix_ht * 1.20' ) ;
-// CEILING(prix_ht * 1.20)
+echo ceiling( 'net_price * 1.20' ) ;
+// CEILING(net_price * 1.20)
 ```
 
 ### `FLOOR`
@@ -59,8 +59,8 @@ Largest integer less than or equal to.
 ```php
 use function oihana\openedge\db\helpers\functions\numerics\floor ;
 
-echo floor( 'prix_ht * 1.20' ) ;
-// FLOOR(prix_ht * 1.20)
+echo floor( 'net_price * 1.20' ) ;
+// FLOOR(net_price * 1.20)
 ```
 
 ### `ROUND`
@@ -70,8 +70,8 @@ Rounding to N decimal places.
 ```php
 use function oihana\openedge\db\helpers\functions\numerics\round ;
 
-echo round( 'prix_ht * 1.20' , 2 ) ;
-// ROUND(prix_ht * 1.20, 2)
+echo round( 'net_price * 1.20' , 2 ) ;
+// ROUND(net_price * 1.20, 2)
 ```
 
 > To format a number as a string with thousands and decimal separators, prefer [`TO_CHAR`](sql-functions-conversions.md#to_char) with a format mask.
@@ -85,8 +85,8 @@ Remainder of integer division.
 ```php
 use function oihana\openedge\db\helpers\functions\numerics\mod ;
 
-echo mod( 'cd_client' , 100 ) ;
-// MOD(cd_client, 100)
+echo mod( 'customer_id' , 100 ) ;
+// MOD(customer_id, 100)
 ```
 
 ### `POWER`
@@ -134,8 +134,8 @@ Decimal logarithm.
 ```php
 use function oihana\openedge\db\helpers\functions\numerics\log10 ;
 
-echo log10( 'chiffre_affaires' ) ;
-// LOG10(chiffre_affaires)
+echo log10( 'revenue' ) ;
+// LOG10(revenue)
 ```
 
 OpenEdge doesn't expose `LN` (natural log) — use `LOG10` and convert if needed.
@@ -210,8 +210,8 @@ Largest / smallest value among N arguments. They are not aggregates (which opera
 use function oihana\openedge\db\helpers\functions\numerics\greatest ;
 use function oihana\openedge\db\helpers\functions\numerics\least    ;
 
-echo greatest([ 'prix_ht' , 'prix_min' ]) ;  // GREATEST(prix_ht, prix_min)
-echo least   ([ 'prix_ht' , 'prix_max' ]) ;  // LEAST(prix_ht, prix_max)
+echo greatest([ 'net_price' , 'min_price' ]) ;  // GREATEST(net_price, min_price)
+echo least   ([ 'net_price' , 'max_price' ]) ;  // LEAST(net_price, max_price)
 ```
 
 ## Composition
@@ -224,7 +224,7 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 use function oihana\openedge\db\helpers\expression ;
 
 echo expression([
-    SQL::COLUMN => 'prix_ht'                    ,
+    SQL::COLUMN => 'net_price'                    ,
     SQL::TABLE  => 'produits'                   ,
     SQL::ALTERS =>
     [
@@ -232,7 +232,7 @@ echo expression([
         NumericFunction::ROUND                    , // ROUND(POWER(x, 2))
     ],
 ]) ;
-// → ROUND(POWER(produits.prix_ht, 2))
+// → ROUND(POWER(products.net_price, 2))
 ```
 
 ## See also

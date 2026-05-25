@@ -148,7 +148,7 @@ This is deliberately left to the host project — the framework's read-only doct
 
 ## Extending `DocumentsController`
 
-The only case where this controller is extended in host applications is to add **business-specific filters** not covered by the generic controller. Example: `StatsController` adds a time-range filter:
+The only case where this controller is extended in a typical host application is to add **business-specific filters** not covered by the generic controller. Example: `StatsController` adds a time-range filter:
 
 ```php
 namespace app\controllers ;

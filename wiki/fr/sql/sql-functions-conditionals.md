@@ -22,14 +22,14 @@ Retourne la première expression non-`NULL` parmi la liste fournie.
 ```php
 use function oihana\openedge\db\helpers\functions\conditionals\coalesce ;
 
-echo coalesce([ 'prix_promo' , 'prix_ht' , 0 ]) ;
-// COALESCE(prix_promo, prix_ht, 0)
+echo coalesce([ 'promo_price' , 'net_price' , 0 ]) ;
+// COALESCE(promo_price, net_price, 0)
 ```
 
 Trois cas typiques :
 
 - **Cascade de valeurs** : prix promo si défini, sinon prix HT, sinon zéro.
-- **Valeur par défaut affichable** : `COALESCE(nom_client, '(client supprimé)')`.
+- **Valeur par défaut affichable** : `COALESCE(customer_name, '(client supprimé)')`.
 - **Force un type non-NULL côté API** : très utile quand le contrat API ne tolère pas `null` sur un champ.
 
 Le second argument optionnel est un *callback* qui transforme chaque expression avant insertion :
@@ -46,8 +46,8 @@ Retourne `fallback` si `expr` est `NULL`, sinon `expr`. Strictement deux argumen
 ```php
 use function oihana\openedge\db\helpers\functions\conditionals\ifNull ;
 
-echo ifNull( 'prix_ht' , 0 ) ;
-// IFNULL(prix_ht, 0)
+echo ifNull( 'net_price' , 0 ) ;
+// IFNULL(net_price, 0)
 ```
 
 `IFNULL` est ODBC standard ; c'est l'équivalent à deux opérandes de `COALESCE`. Pour plus de deux valeurs, utiliser `COALESCE` directement.
@@ -59,8 +59,8 @@ Synonyme Oracle de `IFNULL`. À éviter quand la portabilité ODBC compte — la
 ```php
 use function oihana\openedge\db\helpers\functions\conditionals\nvl ;
 
-echo nvl( 'prix_ht' , 0 ) ;
-// NVL(prix_ht, 0)
+echo nvl( 'net_price' , 0 ) ;
+// NVL(net_price, 0)
 ```
 
 > Le helper est exposé pour les bases qui consomment `oihana/openedge` via un client non-ODBC ou pour rester compatible avec du SQL ancien écrit en style Oracle. Préférer `IFNULL` ou `COALESCE` autrement.
@@ -72,8 +72,8 @@ Retourne `NULL` si `a = b`, sinon `a`. C'est l'opération inverse de `IFNULL`.
 ```php
 use function oihana\openedge\db\helpers\functions\conditionals\nullIf ;
 
-echo nullIf( 'cd_pays' , "'XX'" ) ;
-// NULLIF(cd_pays, 'XX')
+echo nullIf( 'country_code' , "'XX'" ) ;
+// NULLIF(country_code, 'XX')
 ```
 
 Cas typique : une colonne ERP utilise une valeur sentinelle (`'XX'`, `0`, `'N/A'`) pour signifier l'absence — on la remplace par `NULL` au moment de la projection.
@@ -98,22 +98,22 @@ Raccourci : `NULLIF(expr, 0)`. Utile pour les colonnes numériques où `0` signi
 ```php
 use function oihana\openedge\db\helpers\functions\conditionals\nullIfZero ;
 
-echo nullIfZero( 'cd_industrie' ) ;
-// NULLIF(cd_industrie, 0)
+echo nullIfZero( 'industry_code' ) ;
+// NULLIF(industry_code, 0)
 ```
 
 ## Composition typique
 
-Le pattern récurrent dans les applications consommatrices : `NULLIF` pour normaliser, puis `COALESCE` pour un fallback affichable.
+Le pattern récurrent dans une application hôte typique : `NULLIF` pour normaliser, puis `COALESCE` pour un fallback affichable.
 
 ```php
 // "Nom du client tronqué et valeur par défaut si vide"
 echo coalesce
 ([
-    nullIfEmpty( 'LTRIM(RTRIM(nom_client))' ) ,
+    nullIfEmpty( 'LTRIM(RTRIM(customer_name))' ) ,
     "'(sans nom)'" ,
 ]) ;
-// COALESCE(NULLIF(LTRIM(RTRIM(nom_client)), ''), '(sans nom)')
+// COALESCE(NULLIF(LTRIM(RTRIM(customer_name)), ''), '(sans nom)')
 ```
 
 Côté définition de modèle :
@@ -127,7 +127,7 @@ SQL::COLUMNS =>
     [
         SQL::COLUMN => 'description'                      ,
         SQL::TABLE  => 'produits'                         ,
-        SQL::ALTER  => ConditionalFunction::NULLIF_EMPTY  , // → NULLIF(produits.description, '')
+        SQL::ALTER  => ConditionalFunction::NULLIF_EMPTY  , // → NULLIF(products.description, '')
         SQL::ALIAS  => 'description'                      ,
     ],
 ]

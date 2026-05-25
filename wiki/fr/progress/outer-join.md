@@ -13,23 +13,23 @@ Un *outer join* conserve les lignes du côté principal **même si** le côté j
 ### Standard SQL — `LEFT JOIN`
 
 ```sql
-SELECT e.nom , d.libelle
-FROM   PUB.employes_employes e
-LEFT JOIN PUB.departements_departements d
-       ON e.cd_dept = d.cd_dept
+SELECT e.name , d.label
+FROM   PUB.employees e
+LEFT JOIN PUB.departments d
+       ON e.department_id = d.department_id
 ```
 
-Lit : "tous les employés, et pour ceux qui ont un département associé, le libellé du département. Les employés sans département ressortent quand même, avec `d.libelle = NULL`."
+Lit : "tous les employés, et pour ceux qui ont un département associé, le libellé du département. Les employés sans département ressortent quand même, avec `d.label = NULL`."
 
 ### Progress historique — `(+)`
 
 ```sql
-SELECT e.nom , d.libelle
-FROM   PUB.employes_employes e , PUB.departements_departements d
-WHERE  e.cd_dept = d.cd_dept(+)
+SELECT e.name , d.label
+FROM   PUB.employees e , PUB.departments d
+WHERE  e.department_id = d.department_id(+)
 ```
 
-Sémantique strictement identique. Le `(+)` est posé sur la colonne du côté qui peut manquer (ici `d.cd_dept`).
+Sémantique strictement identique. Le `(+)` est posé sur la colonne du côté qui peut manquer (ici `d.department_id`).
 
 ## Côté framework — `OpenEdge::NULLABLE_COLUMN`
 
@@ -40,11 +40,11 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 use function oihana\openedge\db\helpers\expression ;
 
 echo expression([
-    SQL::COLUMN   => 'cd_dept'   ,
+    SQL::COLUMN   => 'department_id'   ,
     SQL::TABLE    => 'd'         ,
     SQL::NULLABLE => true        ,
 ]) ;
-// → d.cd_dept(+)
+// → d.department_id(+)
 ```
 
 Dans une définition de condition `WHERE` :
@@ -52,16 +52,16 @@ Dans une définition de condition `WHERE` :
 ```php
 SQL::WHERE =>
 [
-    SQL::COLUMN   => 'cd_dept'                  ,
+    SQL::COLUMN   => 'department_id'                  ,
     SQL::TABLE    => 'e'                        ,
     SQL::OPERATOR => RelationalOperator::EQUAL  ,
     SQL::VALUE    => expression([
-        SQL::COLUMN   => 'cd_dept' ,
+        SQL::COLUMN   => 'department_id' ,
         SQL::TABLE    => 'd'       ,
         SQL::NULLABLE => true      ,
     ]) ,
 ]
-// → e.cd_dept = d.cd_dept(+)
+// → e.department_id = d.department_id(+)
 ```
 
 ## Quand utiliser quoi
@@ -77,7 +77,7 @@ SQL::WHERE =>
 
 ### 1. Position du `(+)` souvent inversée
 
-Réflexe naturel : "je veux garder les employés sans département, donc je mets `(+)` sur les employés". **Faux.** Le `(+)` se met sur le côté qui **peut être absent**, donc sur `d.cd_dept`, pas sur `e.cd_dept`.
+Réflexe naturel : "je veux garder les employés sans département, donc je mets `(+)` sur les employés". **Faux.** Le `(+)` se met sur le côté qui **peut être absent**, donc sur `d.department_id`, pas sur `e.department_id`.
 
 > Astuce mnémotechnique : `(+)` se lit "*plus quelque chose qui n'est pas vraiment là*", donc sur la colonne dont les valeurs peuvent manquer.
 
@@ -88,27 +88,27 @@ Réflexe naturel : "je veux garder les employés sans département, donc je mets
 ### 3. Pas de `OR` dans une condition outer
 
 ```sql
-WHERE  e.cd_dept = d.cd_dept(+)
-   OR  e.cd_other = d.cd_other(+)         -- ERREUR
+WHERE  e.department_id = d.department_id(+)
+   OR  e.other_id = d.other_id(+)         -- ERREUR
 ```
 
 Quand on a besoin de plusieurs conditions de jointure, il faut passer à `LEFT JOIN ... ON ...` standard.
 
 ### 4. Le `WHERE` se mélange avec la jointure
 
-Avec `(+)`, la jointure et le filtre vivent dans la même clause `WHERE`. C'est source d'erreur : un filtre `AND d.libelle = 'VENTES'` ajouté après la condition de jointure **élimine** les lignes où `d.libelle IS NULL`, ce qui annule l'effet de l'outer join.
+Avec `(+)`, la jointure et le filtre vivent dans la même clause `WHERE`. C'est source d'erreur : un filtre `AND d.label = 'SALES'` ajouté après la condition de jointure **élimine** les lignes où `d.label IS NULL`, ce qui annule l'effet de l'outer join.
 
 ```sql
 -- Inattendu : les employés sans département sont éliminés ici
-WHERE  e.cd_dept = d.cd_dept(+)
-  AND  d.libelle = 'VENTES'
+WHERE  e.department_id = d.department_id(+)
+  AND  d.label = 'SALES'
 
 -- Correct : déplacer le filtre dans une condition compatible NULL
-WHERE  e.cd_dept = d.cd_dept(+)
-  AND  ( d.libelle = 'VENTES' OR d.libelle IS NULL )
+WHERE  e.department_id = d.department_id(+)
+  AND  ( d.label = 'SALES' OR d.label IS NULL )
 ```
 
-> Avec `LEFT JOIN ... ON ...`, on met `d.libelle = 'VENTES'` **dans la clause `ON`** plutôt que dans `WHERE` — ce qui résout le problème de façon plus naturelle.
+> Avec `LEFT JOIN ... ON ...`, on met `d.label = 'SALES'` **dans la clause `ON`** plutôt que dans `WHERE` — ce qui résout le problème de façon plus naturelle.
 
 ## Voir aussi
 

@@ -34,8 +34,8 @@ Reads without taking locks, and **sees uncommitted data** from other transaction
 
 ```sql
 SELECT *
-FROM   PUB.commandes_commandes c WITH (NOLOCK)
-WHERE  c.dat_crt > '2026-01-01'
+FROM   PUB.orders c WITH (NOLOCK)
+WHERE  c.created_at > '2026-01-01'
 ```
 
 ### In the framework

@@ -24,8 +24,8 @@ OpenEdge exposes around thirty SQL functions for string manipulation. The [`Stri
 ```php
 use function oihana\openedge\db\helpers\functions\strings\lower ;
 
-echo lower( 'nom_client' ) ;
-// LOWER(nom_client)
+echo lower( 'customer_name' ) ;
+// LOWER(customer_name)
 ```
 
 `LOWER` and `LCASE` do the same thing; `LCASE` is the standard ODBC spelling. The framework exposes both.
@@ -35,8 +35,8 @@ echo lower( 'nom_client' ) ;
 ```php
 use function oihana\openedge\db\helpers\functions\strings\upper ;
 
-echo upper( 'nom_client' ) ;
-// UPPER(nom_client)
+echo upper( 'customer_name' ) ;
+// UPPER(customer_name)
 ```
 
 ### `INITCAP`
@@ -46,8 +46,8 @@ Capitalises the first letter of each word, lowercases the rest.
 ```php
 use function oihana\openedge\db\helpers\functions\strings\initCap ;
 
-echo initCap( 'nom_client' ) ;
-// INITCAP(nom_client)
+echo initCap( 'customer_name' ) ;
+// INITCAP(customer_name)
 ```
 
 Useful to normalise user-entered names without strict casing rules.
@@ -59,8 +59,8 @@ Useful to normalise user-entered names without strict casing rules.
 ```php
 use function oihana\openedge\db\helpers\functions\strings\length ;
 
-echo length( 'nom_client' ) ;
-// LENGTH(nom_client)
+echo length( 'customer_name' ) ;
+// LENGTH(customer_name)
 ```
 
 ### `ASCII` / `CHR` / `CHAR`
@@ -120,8 +120,8 @@ Check whether a string starts or ends with another (boolean).
 use function oihana\openedge\db\helpers\functions\strings\prefix ;
 use function oihana\openedge\db\helpers\functions\strings\suffix ;
 
-echo prefix( 'nom_client' , "'M.'" ) ;     // PREFIX(nom_client, 'M.')
-echo suffix( 'nom_fichier' , "'.pdf'" ) ;  // SUFFIX(nom_fichier, '.pdf')
+echo prefix( 'customer_name' , "'M.'" ) ;     // PREFIX(customer_name, 'M.')
+echo suffix( 'file_name' , "'.pdf'" ) ;  // SUFFIX(file_name, '.pdf')
 ```
 
 ## Cutting
@@ -132,8 +132,8 @@ echo suffix( 'nom_fichier' , "'.pdf'" ) ;  // SUFFIX(nom_fichier, '.pdf')
 use function oihana\openedge\db\helpers\functions\strings\left  ;
 use function oihana\openedge\db\helpers\functions\strings\right ;
 
-echo left ( 'cd_postal' , 2 ) ;  // LEFT(cd_postal, 2)
-echo right( 'cd_postal' , 3 ) ;  // RIGHT(cd_postal, 3)
+echo left ( 'postal_code' , 2 ) ;  // LEFT(postal_code, 2)
+echo right( 'postal_code' , 3 ) ;  // RIGHT(postal_code, 3)
 ```
 
 ### `SUBSTR` / `SUBSTRING`
@@ -158,8 +158,8 @@ Both are synonyms in Progress. The framework exposes both to avoid forcing a cho
 use function oihana\openedge\db\helpers\functions\strings\ltrim ;
 use function oihana\openedge\db\helpers\functions\strings\rtrim ;
 
-echo ltrim( 'nom_client' ) ;  // LTRIM(nom_client)
-echo rtrim( 'nom_client' ) ;  // RTRIM(nom_client)
+echo ltrim( 'customer_name' ) ;  // LTRIM(customer_name)
+echo rtrim( 'customer_name' ) ;  // RTRIM(customer_name)
 ```
 
 OpenEdge doesn't ship a `TRIM` that strips both sides in a single call — you have to nest `LTRIM(RTRIM(...))`.
@@ -171,8 +171,8 @@ Left or right padding.
 ```php
 use function oihana\openedge\db\helpers\functions\strings\lpad ;
 
-echo lpad( 'cd_client' , 8 , "'0'" ) ;
-// LPAD(cd_client, 8, '0')
+echo lpad( 'customer_id' , 8 , "'0'" ) ;
+// LPAD(customer_id, 8, '0')
 ```
 
 ## Replacement
@@ -182,8 +182,8 @@ echo lpad( 'cd_client' , 8 , "'0'" ) ;
 ```php
 use function oihana\openedge\db\helpers\functions\strings\replace ;
 
-echo replace( 'nom_client' , "' '" , "'_'" ) ;
-// REPLACE(nom_client, ' ', '_')
+echo replace( 'customer_name' , "' '" , "'_'" ) ;
+// REPLACE(customer_name, ' ', '_')
 ```
 
 ### `TRANSLATE`
@@ -193,8 +193,8 @@ Character-by-character substitution from a translation table.
 ```php
 use function oihana\openedge\db\helpers\functions\strings\translate ;
 
-echo translate( 'nom_client' , "'éèà'" , "'eea'" ) ;
-// TRANSLATE(nom_client, 'éèà', 'eea')
+echo translate( 'customer_name' , "'éèà'" , "'eea'" ) ;
+// TRANSLATE(customer_name, 'éèà', 'eea')
 ```
 
 ### `INSERT`
@@ -226,8 +226,8 @@ echo repeat( "'-'" , 10 ) ;
 ```php
 use function oihana\openedge\db\helpers\functions\strings\concat ;
 
-echo concat( 'prenom_client' , 'nom_client' ) ;
-// CONCAT(prenom_client, nom_client)
+echo concat( 'first_name' , 'customer_name' ) ;
+// CONCAT(first_name, customer_name)
 ```
 
 Preferable to the `||` operator for two operands: more readable and explicit. For more than two operands, the `||` operator is more practical (see [`ConcatOperator`](sql-operators.md#concatoperator)).
@@ -243,8 +243,8 @@ Serialises a string for use as an element inside a Progress array.
 ```php
 use function oihana\openedge\db\helpers\functions\strings\proArrayEscape ;
 
-echo proArrayEscape( 'nom_client' ) ;
-// PRO_ARR_ESCAPE(nom_client)
+echo proArrayEscape( 'customer_name' ) ;
+// PRO_ARR_ESCAPE(customer_name)
 ```
 
 ### `PRO_ARR_DESCAPE`
@@ -279,18 +279,18 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 use function oihana\openedge\db\helpers\expression ;
 
 echo expression([
-    SQL::COLUMN => 'nom_client'              ,
+    SQL::COLUMN => 'customer_name'              ,
     SQL::TABLE  => 'clients'                 ,
     SQL::ALTER  => StringFunction::UPPER     ,
 ]) ;
-// → UPPER(clients.nom_client)
+// → UPPER(clients.customer_name)
 ```
 
 To chain multiple transformations, use `SQL::ALTERS`:
 
 ```php
 echo expression([
-    SQL::COLUMN => 'nom_client'              ,
+    SQL::COLUMN => 'customer_name'              ,
     SQL::TABLE  => 'clients'                 ,
     SQL::ALTERS =>
     [
@@ -299,7 +299,7 @@ echo expression([
         StringFunction::UPPER ,
     ],
 ]) ;
-// → UPPER(RTRIM(LTRIM(clients.nom_client)))
+// → UPPER(RTRIM(LTRIM(clients.customer_name)))
 ```
 
 The order of `ALTERS` determines the application order: the **first element is applied first** (innermost in the SQL).

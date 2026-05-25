@@ -11,16 +11,16 @@ use oihana\openedge\db\enums\Type ;
 use function oihana\openedge\db\helpers\functions\cast ;
 
 // Simple cast, no parameter
-echo cast( 'prix_ht' , Type::INTEGER ) ;
-// CAST(prix_ht AS INTEGER)
+echo cast( 'net_price' , Type::INTEGER ) ;
+// CAST(net_price AS INTEGER)
 
 // Cast with length
-echo cast( 'nom_client' , Type::VARCHAR , 20 ) ;
-// CAST(nom_client AS VARCHAR(20))
+echo cast( 'customer_name' , Type::VARCHAR , 20 ) ;
+// CAST(customer_name AS VARCHAR(20))
 
 // Cast with precision and scale
-echo cast( 'montant' , Type::DECIMAL , [ 10 , 2 ] ) ;
-// CAST(montant AS DECIMAL(10, 2))
+echo cast( 'amount' , Type::DECIMAL , [ 10 , 2 ] ) ;
+// CAST(amount AS DECIMAL(10, 2))
 ```
 
 `cast()` validates that `$type` is a `Type::*` constant (through `openEdgeType()`) and throws a `ConstantException` otherwise. No risk of writing `CAST(... AS UNKNOWN_TYPE)`.
@@ -34,8 +34,8 @@ For the most common types, the framework exposes a dedicated helper with idiomat
 ```php
 use function oihana\openedge\db\helpers\functions\casts\castVARCHAR ;
 
-echo castVARCHAR( 'cd_client' , 10 ) ;
-// CAST(cd_client AS VARCHAR(10))
+echo castVARCHAR( 'customer_id' , 10 ) ;
+// CAST(customer_id AS VARCHAR(10))
 ```
 
 ### `castCHAR( expr , length = 1 )`
@@ -47,8 +47,8 @@ Fixed-length string, right-padded with spaces.
 ```php
 use function oihana\openedge\db\helpers\functions\casts\castINTEGER ;
 
-echo castINTEGER( 'cd_client' ) ;
-// CAST(cd_client AS INTEGER)
+echo castINTEGER( 'customer_id' ) ;
+// CAST(customer_id AS INTEGER)
 ```
 
 ### `castBIGINT( expr )`
@@ -64,8 +64,8 @@ Small-format integers — `SMALLINT` is 16-bit (-32 768 to 32 767), `TINYINT` is
 ```php
 use function oihana\openedge\db\helpers\functions\casts\castDECIMAL ;
 
-echo castDECIMAL( 'prix_ht' , 10 , 2 ) ;
-// CAST(prix_ht AS DECIMAL(10, 2))
+echo castDECIMAL( 'net_price' , 10 , 2 ) ;
+// CAST(net_price AS DECIMAL(10, 2))
 ```
 
 ### `castFLOAT( expr )` / `castREAL( expr )` / `castDOUBLE_PRECISION( expr )`
@@ -77,8 +77,8 @@ Three floating-point precisions. `REAL` is single precision (32-bit), `DOUBLE PR
 ```php
 use function oihana\openedge\db\helpers\functions\casts\castDATE ;
 
-echo castDATE( 'dat_crt_str' ) ;
-// CAST(dat_crt_str AS DATE)
+echo castDATE( 'created_at_str' ) ;
+// CAST(created_at_str AS DATE)
 ```
 
 ### `castTIME( expr )` / `castTIMESTAMP( expr )`
@@ -86,8 +86,8 @@ echo castDATE( 'dat_crt_str' ) ;
 ```php
 use function oihana\openedge\db\helpers\functions\casts\castTIMESTAMP ;
 
-echo castTIMESTAMP( 'horodatage_str' ) ;
-// CAST(horodatage_str AS TIMESTAMP)
+echo castTIMESTAMP( 'timestamp_str' ) ;
+// CAST(timestamp_str AS TIMESTAMP)
 ```
 
 ### `castBIT( expr )`
@@ -129,16 +129,16 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 
 SQL::COLUMNS =>
 [
-    // ERP stores cd_client as DECIMAL(15,0); we want it as a string on the API side
+    // ERP stores customer_id as DECIMAL(15,0); we want it as a string on the API side
     [
-        SQL::COLUMN => 'cd_client'                ,
+        SQL::COLUMN => 'customer_id'                ,
         SQL::TABLE  => 'clients'                  ,
         SQL::CAST   => [ Type::VARCHAR , 15 ]     ,
         SQL::ALIAS  => 'id'                       ,
     ],
-    // ERP stores prix_ht as DECIMAL(10,4); we truncate to 2 decimals for billing
+    // ERP stores net_price as DECIMAL(10,4); we truncate to 2 decimals for billing
     [
-        SQL::COLUMN => 'prix_ht'                  ,
+        SQL::COLUMN => 'net_price'                  ,
         SQL::TABLE  => 'produits'                 ,
         SQL::CAST   => [ Type::DECIMAL , [ 10 , 2 ] ] ,
         SQL::ALIAS  => 'price'                    ,

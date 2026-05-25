@@ -96,11 +96,11 @@ PSR-11 (`Psr\Container\ContainerInterface`) dependency-injection container. The 
 
 ### Definition
 
-PHP file that returns a DI definitions array consumed by the container. In host applications, `oihana/openedge` definitions live under `definitions/...` (HTTP models) and `definitions/odbc/` (PDO connections).
+PHP file that returns a DI definitions array consumed by the container. In a typical host application, `oihana/openedge` definitions live under `definitions/...` (HTTP models) and `definitions/odbc/` (PDO connections).
 
 ### Expression
 
-Basic unit produced by the framework helpers: a string representing a valid SQL fragment. An expression can be a literal (`'42'`), a bind (`:userId`), a qualified column (`clients.cd_client`), a function (`CAST(price AS INTEGER)`), a `CASE WHEN`, a concatenation (`a || b`), etc. The `expression()` function is the polymorphic entry point that dispatches based on the shape of the input array.
+Basic unit produced by the framework helpers: a string representing a valid SQL fragment. An expression can be a literal (`'42'`), a bind (`:userId`), a qualified column (`clients.customer_id`), a function (`CAST(price AS INTEGER)`), a `CASE WHEN`, a concatenation (`a || b`), etc. The `expression()` function is the polymorphic entry point that dispatches based on the shape of the input array.
 
 ### Facet
 
@@ -108,7 +108,7 @@ Optional element of a SELECT query that comes after `SELECT … FROM … WHERE`.
 
 ### Harvest
 
-Massive read synchronisation of an OpenEdge table to a target system (cache, document database, file). In host applications, `harvest:*` commands read OpenEdge with a dedicated model (typically `Models::<X>_HARVEST`) that projects only the useful columns, then write to the target. See [`Harvest` models](harvest.md).
+Massive read synchronisation of an OpenEdge table to a target system (cache, document database, file). In a typical host application, `harvest:*` commands read OpenEdge with a dedicated model (typically `Models::<X>_HARVEST`) that projects only the useful columns, then write to the target. See [`Harvest` models](harvest.md).
 
 ### Model (`Documents`)
 

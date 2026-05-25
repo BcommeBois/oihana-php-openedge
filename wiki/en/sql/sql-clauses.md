@@ -49,7 +49,7 @@ Manages the builder's `FROM` string, which may include inline joins.
 use oihana\openedge\enums\OpenEdge as SQL ;
 
 new OpenEdgeQueryBuilder([
-    SQL::FROM => 'PUB.clients_clients clients LEFT JOIN PUB.pays_pays pays ON clients.cd_pays = pays.cd_pays' ,
+    SQL::FROM => 'PUB.customers clients LEFT JOIN PUB.countries pays ON clients.country_code = pays.country_code' ,
 ]) ;
 ```
 
@@ -65,8 +65,8 @@ SQL::WHERE =>
     SQL::LOGIC      => Logic::AND ,
     SQL::CONDITIONS =>
     [
-        [ SQL::COLUMN => 'actif'   , SQL::OPERATOR => '=' , SQL::VALUE => 1        ] ,
-        [ SQL::COLUMN => 'cd_pays' , SQL::OPERATOR => '=' , SQL::BIND  => 'country' ] ,
+        [ SQL::COLUMN => 'active'   , SQL::OPERATOR => '=' , SQL::VALUE => 1        ] ,
+        [ SQL::COLUMN => 'country_code' , SQL::OPERATOR => '=' , SQL::BIND  => 'country' ] ,
     ]
 ]
 ```
@@ -78,10 +78,10 @@ See [SQL predicates](sql-predicates.md) for the accepted forms.
 Handles `GROUP BY` and its optional `HAVING` clause.
 
 ```php
-SQL::GROUP_BY => [ 'cd_pays' , 'segment' ] ,
+SQL::GROUP_BY => [ 'country_code' , 'segment' ] ,
 SQL::HAVING   =>
 [
-    SQL::COLUMN   => 'cd_pays' ,
+    SQL::COLUMN   => 'country_code' ,
     SQL::OPERATOR => '<>'      ,
     SQL::VALUE    => 'XX'      ,
 ]
@@ -94,11 +94,11 @@ SQL::HAVING   =>
 Handles the default sort **and** the `SORTABLE` whitelist.
 
 ```php
-SQL::ORDER_BY => 'nom_client'         , // default sort server-side
+SQL::ORDER_BY => 'customer_name'         , // default sort server-side
 SQL::SORTABLE =>
 [
-    'id'   => 'cd_client'  ,             // ?sort=id → ORDER BY cd_client
-    'name' => 'nom_client' ,             // ?sort=name → ORDER BY nom_client
+    'id'   => 'customer_id'  ,             // ?sort=id → ORDER BY customer_id
+    'name' => 'customer_name' ,             // ?sort=name → ORDER BY customer_name
 ]
 ```
 
@@ -111,14 +111,14 @@ Handles the `SELECT` column list. Accepts an array of expression definitions:
 ```php
 SQL::COLUMNS =>
 [
-    [ SQL::COLUMN => 'cd_client'  , SQL::TABLE => 'clients' , SQL::ALIAS => 'id'   ] ,
-    [ SQL::COLUMN => 'nom_client' , SQL::TABLE => 'clients' , SQL::ALIAS => 'name' ] ,
+    [ SQL::COLUMN => 'customer_id'  , SQL::TABLE => 'clients' , SQL::ALIAS => 'id'   ] ,
+    [ SQL::COLUMN => 'customer_name' , SQL::TABLE => 'clients' , SQL::ALIAS => 'name' ] ,
     [
         SQL::CONCAT =>
         [
-            [ SQL::COLUMN => 'prenom_client' , SQL::TABLE => 'clients' ] ,
+            [ SQL::COLUMN => 'first_name' , SQL::TABLE => 'clients' ] ,
             ' '                                                            ,
-            [ SQL::COLUMN => 'nom_client'    , SQL::TABLE => 'clients' ] ,
+            [ SQL::COLUMN => 'customer_name'    , SQL::TABLE => 'clients' ] ,
         ],
         SQL::ALIAS => 'fullName' ,
     ],

@@ -83,13 +83,13 @@ Dans 90 % des cas, le `queryTimeout` du DSN suffit. Les deux méthodes du trait 
 `OpenEdgeHelperTrait` expose aussi une méthode `updateStatistics()` qui demande au serveur Progress de **recalculer les statistiques** d'une table et de ses index. Ces statistiques sont consommées par l'optimiseur SQL Progress pour choisir le plan de requête.
 
 ```php
-$customers->updateStatistics( 'PUB.clients_clients' ) ;
+$customers->updateStatistics( 'PUB.customers' ) ;
 ```
 
 Côté SQL :
 
 ```sql
-UPDATE TABLE STATISTICS AND INDEX STATISTICS AND ALL COLUMN STATISTICS FOR PUB.clients_clients
+UPDATE TABLE STATISTICS AND INDEX STATISTICS AND ALL COLUMN STATISTICS FOR PUB.customers
 ```
 
 ### Quand l'appeler
@@ -98,7 +98,7 @@ UPDATE TABLE STATISTICS AND INDEX STATISTICS AND ALL COLUMN STATISTICS FOR PUB.c
 - **Après une création d'index** — Progress ne met pas à jour les statistiques automatiquement à la création.
 - **Jamais en ligne sous traffic** — c'est une opération lourde qui pose des verrous le temps du calcul. Réserver à une fenêtre de maintenance.
 
-> Cette méthode est documentée mais peu utilisée en pratique dans les applications consommatrices. Elle est exposée par cohérence avec l'écosystème Progress, et utile dans les scripts de migration / *seed* manuels.
+> Cette méthode est documentée mais peu utilisée en pratique dans une application hôte typique. Elle est exposée par cohérence avec l'écosystème Progress, et utile dans les scripts de migration / *seed* manuels.
 
 ## Voir aussi
 

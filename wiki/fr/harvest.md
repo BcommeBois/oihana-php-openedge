@@ -142,7 +142,7 @@ ModelParam::QUERY_BUILDER =>
     SQL::LOCKING_HINT => LockingHint::WITH_NOLOCK ,
     SQL::WHERE        =>
     [
-        SQL::COLUMN   => 'dat_maj'    ,
+        SQL::COLUMN   => 'updated_at'    ,
         SQL::OPERATOR => '>='         ,
         SQL::BIND     => 'since'      ,
     ],

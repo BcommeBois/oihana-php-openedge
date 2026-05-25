@@ -44,12 +44,12 @@ Le framework suit cinq principes qui se retrouvent dans tout le code et qu'on pa
 
 ## Une doctrine : OpenEdge en lecture seule depuis HTTP
 
-Dans les applications consommatrices d'`oihana/openedge` — une API qui expose des données issues d'un ERP — **OpenEdge n'est jamais muté par une requête HTTP**. Le contrôleur Slim livré (`DocumentsController`) n'expose donc que `count`, `get` et `list` ; les routes utilisent `RouteFlag::READ_ONLY`.
+Dans une application hôte typique d'`oihana/openedge` — une API qui expose des données issues d'un ERP — **OpenEdge n'est jamais muté par une requête HTTP**. Le contrôleur Slim livré (`DocumentsController`) n'expose donc que `count`, `get` et `list` ; les routes utilisent `RouteFlag::READ_ONLY`.
 
 Trois raisons à cette doctrine :
 
 1. **Source de vérité ailleurs.** L'ERP a son propre client et son propre langage ABL pour les mutations métier ; l'API web ne fait pas concurrence à ce client.
-2. **Synchronisation, pas double écriture.** Les commandes CLI `harvest:*` lisent OpenEdge et écrivent dans une base documentaire moderne (ArangoDB dans les applications consommatrices) ; c'est cette base documentaire qui sert d'écriture publique, jamais OpenEdge.
+2. **Synchronisation, pas double écriture.** Les commandes CLI `harvest:*` lisent OpenEdge et écrivent dans une base documentaire moderne (ArangoDB dans une application hôte typique) ; c'est cette base documentaire qui sert d'écriture publique, jamais OpenEdge.
 3. **Verrouillage Progress.** Un ERP OpenEdge en production a des transactions ABL longues qui prennent des verrous ; ouvrir l'écriture SQL en parallèle expose au *deadlock*.
 
 Cette doctrine est portée par le contrôleur, **pas par le modèle** : le modèle `Documents` expose toujours `insert` / `update` / `upsert` / `replace` / `delete` / `truncate`, parce qu'un usage CLI ou un script de migration en a un besoin légitime. À l'extraction de la bibliothèque, si un autre projet a besoin de muter OpenEdge en HTTP, il pourra étendre `DocumentsController` pour ajouter ses verbes — la couche modèle est prête.

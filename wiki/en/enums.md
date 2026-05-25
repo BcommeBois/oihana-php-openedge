@@ -32,7 +32,7 @@ use oihana\openedge\enums\OpenEdge as SQL ;
 
 ### Bulk rename `as SQL`
 
-The dominant pattern in host applications imports the central enum `OpenEdge` under the short alias `SQL` for readability:
+The dominant pattern in a typical host application imports the central enum `OpenEdge` under the short alias `SQL` for readability:
 
 ```php
 use oihana\openedge\enums\OpenEdge as SQL ;

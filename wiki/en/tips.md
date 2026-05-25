@@ -39,14 +39,14 @@ Collection of golden rules to respect when working with `oihana/openedge`. Any v
 ```php
 // ❌ Injection risk — value is inlined into the SQL
 SQL::WHERE => [
-    SQL::COLUMN   => 'nom_client'      ,
+    SQL::COLUMN   => 'customer_name'      ,
     SQL::OPERATOR => '='               ,
     SQL::VALUE    => $_GET['search']   , // never this
 ]
 
 // ✅ Value is bound at execution, PDO escapes correctly
 SQL::WHERE => [
-    SQL::COLUMN   => 'nom_client' ,
+    SQL::COLUMN   => 'customer_name' ,
     SQL::OPERATOR => '='          ,
     SQL::BIND     => 'search'     ,
 ]
@@ -74,12 +74,12 @@ $model->list([ SQL::BINDS => [ 'search' => $_GET['search'] ] ]) ;
 // ❌ Guaranteed injection on ?sort=
 SQL::ORDER_BY => $_GET['sort']
 
-// ✅ Explicit whitelist; ?sort=name → ORDER BY nom_client
-SQL::ORDER_BY => 'nom_client' ,
+// ✅ Explicit whitelist; ?sort=name → ORDER BY customer_name
+SQL::ORDER_BY => 'customer_name' ,
 SQL::SORTABLE =>
 [
-    'id'   => 'cd_client'  ,
-    'name' => 'nom_client' ,
+    'id'   => 'customer_id'  ,
+    'name' => 'customer_name' ,
 ]
 ```
 
@@ -160,7 +160,7 @@ See [Alters](alters.md#pitfalls).
 
 ```sql
 -- Keep employees with no department: (+) on d, not on e
-WHERE e.cd_dept = d.cd_dept(+)
+WHERE e.department_id = d.department_id(+)
 ```
 
 Mnemonic: "*plus something that isn't really there*". See [Progress outer join](progress/outer-join.md).
@@ -177,20 +177,20 @@ If you see broken accented characters (`é` instead of `é`), it's this paramete
 
 ### `(+) AND filter` cancels the outer join
 
-**Rule.** With the `(+)` syntax, the join and the filter live in the same `WHERE`. An `AND d.libelle = 'X'` filter added **eliminates** rows where `d.libelle IS NULL`, which cancels the outer-join effect.
+**Rule.** With the `(+)` syntax, the join and the filter live in the same `WHERE`. An `AND d.label = 'X'` filter added **eliminates** rows where `d.label IS NULL`, which cancels the outer-join effect.
 
 ```sql
 -- ❌ Employees without a department are dropped here
-WHERE  e.cd_dept = d.cd_dept(+)
-  AND  d.libelle = 'VENTES'
+WHERE  e.department_id = d.department_id(+)
+  AND  d.label = 'SALES'
 
 -- ✅ NULL-compatible filter
-WHERE  e.cd_dept = d.cd_dept(+)
-  AND  ( d.libelle = 'VENTES' OR d.libelle IS NULL )
+WHERE  e.department_id = d.department_id(+)
+  AND  ( d.label = 'SALES' OR d.label IS NULL )
 
 -- ✅✅ Better: LEFT JOIN with ON
-FROM   PUB.employes e
-LEFT JOIN PUB.departements d ON e.cd_dept = d.cd_dept AND d.libelle = 'VENTES'
+FROM   PUB.employees e
+LEFT JOIN PUB.departments d ON e.department_id = d.department_id AND d.label = 'SALES'
 ```
 
 See [Progress outer join](progress/outer-join.md#pitfalls-of-).
@@ -237,7 +237,7 @@ $customers->list([
 Typical output in logs:
 
 ```
-query    : SELECT clients.cd_client AS "id", clients.nom_client AS "name" FROM PUB.clients_clients clients ORDER BY nom_client DESC FETCH FIRST 50 ROWS ONLY
+query    : SELECT clients.customer_id AS "id", clients.customer_name AS "name" FROM PUB.customers clients ORDER BY customer_name DESC FETCH FIRST 50 ROWS ONLY
 bindVars : {"country":"FR"}
 ```
 
@@ -278,7 +278,7 @@ To address: could be tackled via a Progress test Docker (if an official image ap
 
 ### Importing `OpenEdge as SQL`
 
-The dominant pattern in host applications imports the central enum `OpenEdge` under the short alias `SQL` for readability:
+The dominant pattern in a typical host application imports the central enum `OpenEdge` under the short alias `SQL` for readability:
 
 ```php
 use oihana\openedge\enums\OpenEdge as SQL ;

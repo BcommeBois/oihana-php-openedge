@@ -148,7 +148,7 @@ C'est volontairement laissé à la charge du projet hôte — la doctrine de lec
 
 ## Étendre `DocumentsController`
 
-Le seul cas où l'on étend ce contrôleur dans les applications consommatrices est pour ajouter des **filtres métier spécifiques** non couverts par le contrôleur générique. Exemple : `StatsController` ajoute un filtre par plage temporelle :
+Le seul cas où l'on étend ce contrôleur dans une application hôte typique est pour ajouter des **filtres métier spécifiques** non couverts par le contrôleur générique. Exemple : `StatsController` ajoute un filtre par plage temporelle :
 
 ```php
 namespace app\controllers ;

@@ -34,8 +34,8 @@ Lit sans poser de verrou, et **voit les données non-commitées** par les autres
 
 ```sql
 SELECT *
-FROM   PUB.commandes_commandes c WITH (NOLOCK)
-WHERE  c.dat_crt > '2026-01-01'
+FROM   PUB.orders c WITH (NOLOCK)
+WHERE  c.created_at > '2026-01-01'
 ```
 
 ### Côté framework
