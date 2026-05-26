@@ -243,7 +243,7 @@ SQL::WHERE =>
     [ [ SQL::COLUMN => 'client.department_id' ] , Operator::EQUAL , [ SQL::COLUMN => 'department.id' , SQL::NULLABLE => true ] ] ,
 ],
 
-// WHERE products.statut = 0 AND (products.name = 'ooop' OR products.name = 'bouney')
+// WHERE products.statut = 0 AND (products.name = 'ooop' OR products.name = 'xyz')
 SQL::WHERE =>
 [
     SQL::OPERATOR   => Logic::AND  , // default AND
@@ -255,13 +255,13 @@ SQL::WHERE =>
             SQL::CONDITIONS =>
             [
                 [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'ooop'   ] ,
-                [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'bouney' ] ,
+                [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'xyz' ] ,
             ],
         ]
     ],
 ],
 
-// WHERE NOT( products.statut = 0 AND (products.name = 'ooop' OR products.name = 'bouney') )
+// WHERE NOT( products.statut = 0 AND (products.name = 'ooop' OR products.name = 'xyz') )
 SQL::WHERE =>
 [
     SQL::OPERATOR   => Logic::NOT  ,
@@ -275,8 +275,8 @@ SQL::WHERE =>
                 SQL::OPERATOR   => Logic::OR  ,
                 SQL::CONDITIONS =>
                 [
-                    [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'ooop'   ] ,
-                    [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'bouney' ] ,
+                    [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'ooop' ] ,
+                    [ [ SQL::COLUMN => 'products.name' ] , Operator::EQUAL , 'xyz'  ] ,
                 ],
             ]
         ]
