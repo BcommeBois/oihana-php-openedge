@@ -4,7 +4,6 @@ namespace oihana\openedge\models\traits\documents;
 
 use DateInvalidTimeZoneException;
 use DateMalformedStringException;
-use oihana\models\traits\EnsureKeysTrait;
 use ReflectionException;
 
 use DI\DependencyException;
@@ -17,13 +16,13 @@ use Psr\SimpleCache\InvalidArgumentException;
 use oihana\enums\http\HttpMethod;
 use oihana\exceptions\BindException;
 use oihana\exceptions\ValidationException;
-use oihana\logging\LoggerTrait;
+use oihana\logging\DebugTrait;
 use oihana\models\pdo\PDOTrait;
 use oihana\models\traits\CacheableTrait;
+use oihana\models\traits\EnsureKeysTrait;
 use oihana\openedge\db\traits\OpenEdgeQueryBuilderTrait;
 use oihana\openedge\enums\OpenEdge;
 use oihana\reflect\exceptions\ConstantException;
-use oihana\traits\DebugTrait;
 
 use function oihana\core\objects\toAssociativeArray;
 use function oihana\core\strings\compile;
@@ -51,7 +50,6 @@ use function oihana\core\strings\uniqueKey;
  * @mixin CacheableTrait
  * @mixin OpenEdgeQueryBuilderTrait
  * @mixin DebugTrait
- * @mixin LoggerTrait
  */
 trait DocumentsGetTrait
 {
