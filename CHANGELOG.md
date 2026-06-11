@@ -17,3 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `enums/` (1 file): typed constants.
 - Test suite under `tests/oihana/openedge/` (58 PHP files): unit coverage for the functional helpers (predicates, casts, string/numeric/date/conditional/conversion functions, expression builders). The suite runs without an ODBC driver and is fully green under PHPUnit 12 strict mode.
 - Bilingual user guides under `wiki/{fr,en}/`: introduction, quickstart, dependencies, DSN, connection, glossary, helpers, query builder, models, controllers, harvest, tips, enums, alters, plus the `progress/` (driver quirks) and `sql/` (function catalogue) folders.
+
+### Changed
+- DocumentsGetTrait: use the oihana/logging/DebugTrait trait
