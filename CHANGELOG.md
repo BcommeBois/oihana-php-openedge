@@ -20,3 +20,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - DocumentsGetTrait: use the oihana/logging/DebugTrait trait
+- Dependencies: replaced `oihana/php-system` with the focused packages actually consumed — `oihana/php-controllers`, `oihana/php-logging`, `oihana/php-models` and `oihana/php-traits` (namespaces `oihana\controllers`, `oihana\logging`, `oihana\models`, `oihana\traits`). Drops the heavy Slim/Twig/Symfony stack that `php-system` pulled in. No code or public-API change.
