@@ -109,4 +109,22 @@ final class GroupByTest extends TestCase
         $this->assertEquals('', $result);
     }
 
+    /**
+     * A resolved definition that is neither string nor array (here an int passed
+     * through the GROUP_BY container) yields an empty clause.
+     */
+    public function testNonStringNonArrayDefinitionReturnsEmpty(): void
+    {
+        $this->assertEquals( '', $this->groupBy( [ OpenEdge::GROUP_BY => 123 ] ) );
+    }
+
+    /**
+     * An array whose entries produce no usable part (empty string + non
+     * associative array) yields an empty clause.
+     */
+    public function testArrayWithoutUsablePartsReturnsEmpty(): void
+    {
+        $this->assertEquals( '', $this->groupBy( [ OpenEdge::GROUP_BY => [ '', [ 1, 2 ] ] ] ) );
+    }
+
 }

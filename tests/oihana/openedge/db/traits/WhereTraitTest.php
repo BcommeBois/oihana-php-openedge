@@ -2,8 +2,10 @@
 
 namespace tests\oihana\openedge\db\traits;
 
+use oihana\openedge\db\enums\Facet;
 use oihana\openedge\db\enums\Logic;
 use oihana\openedge\db\enums\Predicate;
+use oihana\openedge\db\traits\BindTrait;
 use oihana\openedge\db\traits\WhereTrait;
 use oihana\openedge\enums\OpenEdge;
 use PHPUnit\Framework\TestCase;
@@ -101,6 +103,31 @@ final class WhereTraitTest extends TestCase
             expected : "WHERE name IS NULL",
             actual   : $this->query->where($definition)
         );
+    }
+
+    public function testNullInitReturnsEmpty(): void
+    {
+        $this->assertSame( '', $this->query->where( null ) );
+    }
+
+    public function testFacetsAreMergedIntoWhere(): void
+    {
+        $query = new class {
+            use WhereTrait;
+            use BindTrait;
+        };
+        $query->initializeQueryID( 'q' );
+        $query->facets = [
+            'status' => [ OpenEdge::TYPE => Facet::IN, Facet::EXPRESSION => 'products.status' ],
+        ];
+        $query->where = 'base = 1';
+
+        $binds = [];
+        $this->assertSame(
+            "WHERE base = 1 AND 'products.status' IN (status_0,status_1)",
+            $query->where( [ OpenEdge::FACETS => [ 'status' => '1,2' ] ], $binds )
+        );
+        $this->assertSame( [ 'status_0' => '1', 'status_1' => '2' ], $binds );
     }
 
     public function testNestedLogic(): void

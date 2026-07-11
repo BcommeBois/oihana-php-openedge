@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bilingual user guides under `wiki/{fr,en}/`: introduction, quickstart, dependencies, DSN, connection, glossary, helpers, query builder, models, controllers, harvest, tips, enums, alters, plus the `progress/` (driver quirks) and `sql/` (function catalogue) folders.
 
 ### Tests
+- Coverage campaign — Lot 2 (SQL clause traits): added `OrderByTraitTest`, `LookingHintTraitTest`, `BindTraitTest`, `ColumnTraitTest`, `FromTraitTest` and `FacetsTraitTest`; extended `WhereTraitTest` (null init, facets merged into WHERE) and `GroupByTest` (non-array and no-usable-part definitions). `db/traits` coverage 18.3% → 93.1%, overall line coverage 56.03% → 67.91%.
 - Coverage campaign — Lot 1 (helpers): added `OrderByExpressionTest` (11 tests) and `RowUrlTest` (5 tests), covering `db/helpers/orderByExpression()` and `db/helpers/rowUrl()` end to end. Line coverage 53.85% → 56.03%.
 
 ### Changed
