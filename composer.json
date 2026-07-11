@@ -50,6 +50,7 @@
             "src/oihana/openedge/db/helpers/openEdgeType.php",
             "src/oihana/openedge/db/helpers/orderByExpression.php",
             "src/oihana/openedge/db/helpers/overrideExpression.php",
+            "src/oihana/openedge/db/helpers/parseExtent.php",
             "src/oihana/openedge/db/helpers/rowUrl.php",
             "src/oihana/openedge/db/helpers/searchCondition.php",
             "src/oihana/openedge/db/helpers/validateContext.php",
