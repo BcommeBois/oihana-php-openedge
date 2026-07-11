@@ -20,5 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bilingual user guides under `wiki/{fr,en}/`: introduction, quickstart, dependencies, DSN, connection, glossary, helpers, query builder, models, controllers, harvest, tips, enums, alters, plus the `progress/` (driver quirks) and `sql/` (function catalogue) folders.
 
 ### Changed
+- Dev dependency: bumped `phpunit/phpunit` from `^12` to `^13` (installed 13.2.4). Full suite green — 329 tests, 414 assertions.
 - DocumentsGetTrait: use the oihana/logging/DebugTrait trait
 - Dependencies: replaced `oihana/php-system` with the focused packages actually consumed — `oihana/php-controllers`, `oihana/php-logging`, `oihana/php-models` and `oihana/php-traits` (namespaces `oihana\controllers`, `oihana\logging`, `oihana\models`, `oihana\traits`). Drops the heavy Slim/Twig/Symfony stack that `php-system` pulled in. No code or public-API change.
