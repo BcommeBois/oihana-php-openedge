@@ -98,6 +98,10 @@ portNumber = 20931
 # requête de fumée optionnelle pour OpenEdgeConnectionTest
 [test]
 query = "SELECT COUNT(*) FROM PUB.customer"
+
+# optionnel : pointe les tests d'intégration modèle / contrôleur sur une vraie table
+[test.documents]
+from = "PUB.customer"
 ```
 
 La garde partagée [`RequiresOpenEdgeTrait`](../../tests/oihana/openedge/integration/RequiresOpenEdgeTrait.php) le lit via `oihana\init\initConfig()` (dépendance de dev `oihana/php-init`), fusionne `[odbc]` avec le premier bloc `[databases.*]`, construit un vrai PDO via `OpenEdgePDOBuilder`, et appelle `markTestSkipped()` quand `pdo_odbc` est absent, que le fichier n'existe pas, ou que la connexion échoue. Ensuite :
@@ -107,7 +111,13 @@ cp configs/config.example.toml configs/config.toml   # la première fois, puis �
 composer test:integration
 ```
 
-Le cas de référence [`OpenEdgeConnectionTest`](../../tests/oihana/openedge/integration/OpenEdgeConnectionTest.php) ouvre une connexion réelle et exécute la requête de fumée `[test]` optionnelle ; sers-t'en comme modèle pour les tests d'intégration des modèles/contrôleurs.
+Trois suites sont fournies, toutes `#[Group('integration')]` et toutes vertes en skippant sans serveur :
+
+- [`OpenEdgeConnectionTest`](../../tests/oihana/openedge/integration/OpenEdgeConnectionTest.php) — ouvre une connexion réelle et exécute la requête de fumée `[test]` optionnelle.
+- [`DocumentsModelIntegrationTest`](../../tests/oihana/openedge/integration/DocumentsModelIntegrationTest.php) — `count()` / `list()` (borné via `OpenEdge::LIMIT`) / `get()` / `stream()` en lecture seule sur la table `[test.documents]`.
+- [`DocumentsControllerIntegrationTest`](../../tests/oihana/openedge/integration/DocumentsControllerIntegrationTest.php) — le contrôleur de bout en bout sur une vraie app Slim, `count()` + `get()` (gardés légers pour éviter de scanner une grosse table).
+
+Sous `[test.documents]`, seul `from` est requis ; `columns` et `sortable` sont optionnels. Rien n'est écrit — les mutations sont non supportées par le modèle — donc pointer ces tests sur une base en lecture seule est sûr. Sers-t'en comme modèle pour des tests d'intégration plus poussés.
 
 ## Intégration continue
 

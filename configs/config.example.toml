@@ -41,3 +41,14 @@ portNumber = 20931
 
 # [test]
 # query = "SELECT COUNT(*) FROM PUB.customer"
+
+# ----------------------------------------------------------------------------
+# [test.documents] — optional: point the Documents model / controller
+# integration tests at a real READ-ONLY table. Without this block those tests
+# skip. Only `from` is required; the rest is optional.
+# ----------------------------------------------------------------------------
+
+# [test.documents]
+# from     = "PUB.customer"                        # table (FROM clause)
+# columns  = { id = "cust_num", name = "name" }    # optional alias => column map
+# sortable = { id = "cust_num" }                   # optional sortable whitelist for list()

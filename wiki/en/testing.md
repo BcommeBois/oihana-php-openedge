@@ -98,6 +98,10 @@ portNumber = 20931
 # optional smoke query for OpenEdgeConnectionTest
 [test]
 query = "SELECT COUNT(*) FROM PUB.customer"
+
+# optional: point the model / controller integration tests at a real table
+[test.documents]
+from = "PUB.customer"
 ```
 
 The shared guard [`RequiresOpenEdgeTrait`](../../tests/oihana/openedge/integration/RequiresOpenEdgeTrait.php) reads it through `oihana\init\initConfig()` (the `oihana/php-init` dev dependency), merges `[odbc]` with the first `[databases.*]` block, builds a real PDO via `OpenEdgePDOBuilder`, and `markTestSkipped()`s when `pdo_odbc` is missing, the file is absent, or the connection throws. Then just:
@@ -107,7 +111,13 @@ cp configs/config.example.toml configs/config.toml   # first time only, then edi
 composer test:integration
 ```
 
-The reference case [`OpenEdgeConnectionTest`](../../tests/oihana/openedge/integration/OpenEdgeConnectionTest.php) opens a live connection and runs the optional `[test]` smoke query; use it as a template for model/controller integration tests.
+Three suites ship, all `#[Group('integration')]` and all skip green without a server:
+
+- [`OpenEdgeConnectionTest`](../../tests/oihana/openedge/integration/OpenEdgeConnectionTest.php) — opens a live connection and runs the optional `[test]` smoke query.
+- [`DocumentsModelIntegrationTest`](../../tests/oihana/openedge/integration/DocumentsModelIntegrationTest.php) — read-only `count()` / `list()` (bounded via `OpenEdge::LIMIT`) / `get()` / `stream()` against the `[test.documents]` table.
+- [`DocumentsControllerIntegrationTest`](../../tests/oihana/openedge/integration/DocumentsControllerIntegrationTest.php) — the controller end to end on a real Slim app, `count()` + `get()` (kept cheap to avoid scanning a large table).
+
+Only `from` is required under `[test.documents]`; `columns` and `sortable` are optional. Nothing is written — mutations are unsupported by the model — so pointing these at a read-only database is safe. Use them as a template for deeper model/controller integration tests.
 
 ## Continuous integration
 

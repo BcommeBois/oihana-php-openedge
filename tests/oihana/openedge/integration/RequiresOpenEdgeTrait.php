@@ -2,7 +2,10 @@
 
 namespace tests\oihana\openedge\integration;
 
+use DI\Container;
 use oihana\openedge\db\OpenEdgePDOBuilder;
+use oihana\openedge\enums\OpenEdge;
+use oihana\openedge\models\Documents;
 use PDO;
 use PDOException;
 
@@ -76,5 +79,45 @@ trait RequiresOpenEdgeTrait
     {
         $configsDir = dirname( __DIR__, 4 ) . DIRECTORY_SEPARATOR . 'configs' ;
         return initConfig( basePath: $configsDir, file: 'config.toml' ) ;
+    }
+
+    /**
+     * The `[test.documents]` block (real read-only table to exercise the model
+     * and controller against), or a skip when it is not configured.
+     *
+     * @return array<string,mixed>
+     */
+    protected function documentsConfig(): array
+    {
+        $documents = $this->openEdgeConfig()[ 'test' ][ 'documents' ] ?? null ;
+
+        if ( ! is_array( $documents ) || ! is_string( $documents[ 'from' ] ?? null ) || $documents[ 'from' ] === '' )
+        {
+            $this->markTestSkipped(
+                'No [test.documents] table configured in configs/config.toml (set at least `from`).'
+            );
+        }
+
+        return $documents ;
+    }
+
+    /**
+     * Builds a live, read-only `Documents` model wired on the real PDO and the
+     * `[test.documents]` table. Skips when no server / table is available.
+     */
+    protected function openEdgeDocuments(): Documents
+    {
+        $pdo    = $this->connectOpenEdge() ;
+        $config = $this->documentsConfig() ;
+
+        $init = [
+            OpenEdge::PDO  => $pdo,
+            OpenEdge::FROM => $config[ 'from' ],
+        ] ;
+
+        if ( is_array( $config[ 'columns' ]  ?? null ) ) { $init[ OpenEdge::COLUMNS  ] = $config[ 'columns' ]  ; }
+        if ( is_array( $config[ 'sortable' ] ?? null ) ) { $init[ OpenEdge::SORTABLE ] = $config[ 'sortable' ] ; }
+
+        return new Documents( new Container(), $init ) ;
     }
 }
