@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `DocumentsControllerCountTrait::count()`: the error handler used `$e->getCode() ?? 500`, but `??` only guards `null` — a generic exception carries code `0`, which was forwarded to `fail()` and made Slim throw `Invalid HTTP status code`, masking the original error. The failure path now derives the status via `HttpStatusCode::fromException()` (forwards a valid HTTP error status 400–599, falls back to `500` otherwise).
 
+### Changed
+- `DocumentsControllerGetTrait::get()` and `DocumentsControllerListTrait::list()`: their error handlers now derive the failure status via `HttpStatusCode::fromException()` instead of a hardcoded `500`, aligning the three controller actions — they forward a valid HTTP error status (400–599) carried by the exception and fall back to `500` otherwise.
+
 ### Added
 
 - `db/helpers/parseExtent()` helper: extracts one element (0-based index) from a Progress extent serialized as a `';'`-joined string (e.g. `"5;0;0;0"`), trimmed, returning an empty string when the value or the requested index is absent. Registered in `autoload.files` and covered by `ParseExtentTest` (10 tests).

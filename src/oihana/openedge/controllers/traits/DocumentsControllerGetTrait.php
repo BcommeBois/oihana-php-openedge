@@ -16,6 +16,7 @@ use oihana\controllers\traits\prepare\PrepareBench;
 use oihana\controllers\traits\prepare\PrepareMock;
 use oihana\controllers\traits\PrepareParamTrait;
 use oihana\controllers\traits\StatusTrait;
+use oihana\enums\http\HttpStatusCode;
 use oihana\enums\Output;
 use oihana\models\traits\ModelTrait;
 use oihana\openedge\enums\OpenEdge;
@@ -83,7 +84,7 @@ trait DocumentsControllerGetTrait
         }
         catch ( Exception $e )
         {
-            return $this->fail( $request , $response , 500 , $e->getMessage() ) ;
+            return $this->fail( $request , $response , HttpStatusCode::fromException( $e ) , $e->getMessage() ) ;
         }
     }
 }
