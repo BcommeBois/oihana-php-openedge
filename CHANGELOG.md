@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test suite under `tests/oihana/openedge/` (58 PHP files): unit coverage for the functional helpers (predicates, casts, string/numeric/date/conditional/conversion functions, expression builders). The suite runs without an ODBC driver and is fully green under PHPUnit 12 strict mode.
 - Bilingual user guides under `wiki/{fr,en}/`: introduction, quickstart, dependencies, DSN, connection, glossary, helpers, query builder, models, controllers, harvest, tips, enums, alters, plus the `progress/` (driver quirks) and `sql/` (function catalogue) folders.
 
+### Tests
+- Coverage campaign — Lot 1 (helpers): added `OrderByExpressionTest` (11 tests) and `RowUrlTest` (5 tests), covering `db/helpers/orderByExpression()` and `db/helpers/rowUrl()` end to end. Line coverage 53.85% → 56.03%.
+
 ### Changed
 - Dev dependency: bumped `phpunit/phpunit` from `^12` to `^13` (installed 13.2.4). Full suite green — 329 tests, 414 assertions.
 - DocumentsGetTrait: use the oihana/logging/DebugTrait trait
