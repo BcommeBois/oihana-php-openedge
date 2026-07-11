@@ -3,10 +3,12 @@
 namespace tests\oihana\openedge\models;
 
 use DI\Container;
+use oihana\exceptions\UnsupportedOperationException;
 use oihana\openedge\models\Documents;
 use oihana\openedge\enums\OpenEdge;
 use PDO;
 use PDOStatement;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 
@@ -131,6 +133,54 @@ final class DocumentsTest extends TestCase
         [ $docs ] = $this->documents( $pdo );
 
         $this->assertSame( [], $docs->list() );
+    }
+
+    // --- Read-only guards : every mutation is unsupported -------------------
+
+    public static function unsupportedOperations(): array
+    {
+        return [
+            'insert'     => [ 'insert' ],
+            'update'     => [ 'update' ],
+            'updateDate' => [ 'updateDate' ],
+            'replace'    => [ 'replace' ],
+            'upsert'     => [ 'upsert' ],
+            'delete'     => [ 'delete' ],
+            'deleteAll'  => [ 'deleteAll' ],
+            'last'       => [ 'last' ],
+            'truncate'   => [ 'truncate' ],
+        ];
+    }
+
+    #[DataProvider( 'unsupportedOperations' )]
+    public function testMutationIsUnsupported( string $method ): void
+    {
+        [ $docs ] = $this->documents();
+
+        $this->expectException( UnsupportedOperationException::class );
+        $docs->$method();
+    }
+
+    // --- stream : generator-backed read through a mocked PDO ----------------
+
+    public function testStreamYieldsFetchedThings(): void
+    {
+        $stmt = $this->createStub( PDOStatement::class );
+        $stmt->method( 'execute' )->willReturn( true );
+        $stmt->method( 'setFetchMode' )->willReturn( true );
+        $stmt->method( 'closeCursor' )->willReturn( true );
+        // fetch() is called in a while-loop; return two rows then false to stop.
+        $stmt->method( 'fetch' )->willReturnOnConsecutiveCalls(
+            [ 'id' => 1, 'name' => 'a' ],
+            [ 'id' => 2, 'name' => 'b' ],
+            false
+        );
+
+        [ $docs ] = $this->documents( $this->pdoReturning( $stmt ) );
+
+        $things = iterator_to_array( $docs->stream() );
+
+        $this->assertCount( 2, $things );
     }
 
     // --- OpenEdgeHelperTrait : direct PDO statements ------------------------
