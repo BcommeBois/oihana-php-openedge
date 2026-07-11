@@ -99,6 +99,7 @@ For details (ODBC DSN, PDO attributes, composable SQL builder, models, Slim cont
 ### Cross-cutting
 
 - [Tips and pitfalls](tips.md) — golden rules: `bindExpression` vs `valueExpression` vs `literal`, read-only HTTP, `sortable` whitelist, local test constraint without ODBC driver.
+- [Testing](testing.md) — unit vs live integration layers, coverage tooling (`composer coverage:md`), and why 100% coverage is unreachable without the ODBC driver.
 
 ## Project status
 

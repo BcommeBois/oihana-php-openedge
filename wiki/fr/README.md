@@ -99,6 +99,7 @@ Pour le détail (DSN ODBC, attributs PDO, *builder* SQL composable, modèles, co
 ### Transverse
 
 - [Tips et pièges](tips.md) — règles d'or : `bindExpression` vs `valueExpression` vs `literal`, lecture seule HTTP, *whitelist* `sortable`, contrainte de test local sans driver ODBC.
+- [Tests](testing.md) — couches unitaire vs intégration live, outillage de couverture (`composer coverage:md`), et pourquoi les 100 % sont inatteignables sans le driver ODBC.
 
 ## Statut du chantier
 
