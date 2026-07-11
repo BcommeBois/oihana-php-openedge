@@ -30,6 +30,14 @@
         </testsuite>
     </testsuites>
 
+    <!-- Live integration tests need a reachable OpenEdge + the ODBC driver; they
+         are opt-in via phpunit-integration.xml and excluded from the default run. -->
+    <groups>
+        <exclude>
+            <group>integration</group>
+        </exclude>
+    </groups>
+
     <source>
         <include>
             <directory suffix=".php">./src</directory>

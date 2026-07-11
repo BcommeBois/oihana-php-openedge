@@ -77,6 +77,38 @@ composer test:integration           # = ./vendor/bin/phpunit -c phpunit-integrat
 
 Configuration : [phpunit-integration.xml](../../phpunit-integration.xml). Elle pose `failOnSkipped="false"` pour que la suite **reste verte sur une machine sans driver** — les tests d'intégration se contentent d'être ignorés. Écrivez ces tests de façon à détecter tôt l'absence de serveur joignable (ou du driver ODBC) et à appeler `markTestSkipped()`, plutôt qu'à échouer.
 
+### Se connecter à un serveur
+
+Les paramètres de connexion sont dans un fichier TOML, `configs/config.toml`, **copié depuis le template committé** [`configs/config.example.toml`](../../configs/config.example.toml). Le vrai `config.toml` est gitignoré — aucun identifiant n'est commité. Il reprend la découpe `[odbc]` / `[databases.<name>]` documentée dans [connection.md](connection.md) :
+
+```toml
+[odbc]
+scheme       = "odbc"
+driver       = "/usr/dlc/odbc/lib/pgoe27.so"
+hostName     = "erp.example.com"
+charSet      = 106
+queryTimeout = 300
+logonID      = "reader"
+password     = "secret"
+
+[databases.erp]
+database   = "erp_database"
+portNumber = 20931
+
+# requête de fumée optionnelle pour OpenEdgeConnectionTest
+[test]
+query = "SELECT COUNT(*) FROM PUB.customer"
+```
+
+La garde partagée [`RequiresOpenEdgeTrait`](../../tests/oihana/openedge/integration/RequiresOpenEdgeTrait.php) le lit via `oihana\init\initConfig()` (dépendance de dev `oihana/php-init`), fusionne `[odbc]` avec le premier bloc `[databases.*]`, construit un vrai PDO via `OpenEdgePDOBuilder`, et appelle `markTestSkipped()` quand `pdo_odbc` est absent, que le fichier n'existe pas, ou que la connexion échoue. Ensuite :
+
+```shell
+cp configs/config.example.toml configs/config.toml   # la première fois, puis édite-le
+composer test:integration
+```
+
+Le cas de référence [`OpenEdgeConnectionTest`](../../tests/oihana/openedge/integration/OpenEdgeConnectionTest.php) ouvre une connexion réelle et exécute la requête de fumée `[test]` optionnelle ; sers-t'en comme modèle pour les tests d'intégration des modèles/contrôleurs.
+
 ## Intégration continue
 
 Deux workflows GitHub Actions :

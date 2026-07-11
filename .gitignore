@@ -24,3 +24,6 @@ coverage.xml
 
 # phpDocumentor generated output
 /docs/
+
+# Local integration config (keep configs/config.example.toml as the template)
+configs/config.toml

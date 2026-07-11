@@ -1,0 +1,43 @@
+# ----------------------------------------------------------------------------
+# oihana/php-openedge — example configuration
+#
+# Copy this file to `configs/config.toml` and adjust the values for your local
+# Progress OpenEdge SQL server. It is consumed ONLY by the live integration
+# suite (`composer test:integration`) — the library itself never reads it; a
+# host application wires its own DI config (see wiki/{fr,en}/connection.md).
+#
+# `configs/config.toml` is gitignored: never commit real credentials.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# [odbc] — shared ODBC parameters (same host / credentials / driver for every
+# database on that server). Mirrors the `[odbc]` block documented in
+# wiki/{fr,en}/connection.md.
+# ----------------------------------------------------------------------------
+
+[odbc]
+scheme       = "odbc"
+driver       = "/usr/dlc/odbc/lib/pgoe27.so"   # path to the Progress ODBC driver
+hostName     = "erp.example.com"
+charSet      = 106                              # IANA app code page (106 = UTF-8)
+queryTimeout = 300
+logonID      = "reader"
+password     = ""
+
+# ----------------------------------------------------------------------------
+# [databases.<name>] — per-database parameters (database name + SQL port).
+# The integration suite connects to the FIRST database block declared here.
+# Add more blocks to describe additional Progress databases on the same server.
+# ----------------------------------------------------------------------------
+
+[databases.erp]
+database   = "erp_database"
+portNumber = 20931
+
+# ----------------------------------------------------------------------------
+# [test] — optional smoke query run by OpenEdgeConnectionTest. Leave it out to
+# skip that assertion.
+# ----------------------------------------------------------------------------
+
+# [test]
+# query = "SELECT COUNT(*) FROM PUB.customer"

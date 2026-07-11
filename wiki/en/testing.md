@@ -77,6 +77,38 @@ composer test:integration           # = ./vendor/bin/phpunit -c phpunit-integrat
 
 Configuration: [phpunit-integration.xml](../../phpunit-integration.xml). It sets `failOnSkipped="false"` so the suite **stays green on a machine without the driver** — the integration tests simply skip. Write these tests so they detect the absence of a reachable server (or the ODBC driver) and `markTestSkipped()` early, rather than failing.
 
+### Connecting to a server
+
+Connection settings live in a TOML file, `configs/config.toml`, **copied from the committed template** [`configs/config.example.toml`](../../configs/config.example.toml). The real `config.toml` is gitignored — no credentials are committed. It uses the same `[odbc]` / `[databases.<name>]` split documented in [connection.md](connection.md):
+
+```toml
+[odbc]
+scheme       = "odbc"
+driver       = "/usr/dlc/odbc/lib/pgoe27.so"
+hostName     = "erp.example.com"
+charSet      = 106
+queryTimeout = 300
+logonID      = "reader"
+password     = "secret"
+
+[databases.erp]
+database   = "erp_database"
+portNumber = 20931
+
+# optional smoke query for OpenEdgeConnectionTest
+[test]
+query = "SELECT COUNT(*) FROM PUB.customer"
+```
+
+The shared guard [`RequiresOpenEdgeTrait`](../../tests/oihana/openedge/integration/RequiresOpenEdgeTrait.php) reads it through `oihana\init\initConfig()` (the `oihana/php-init` dev dependency), merges `[odbc]` with the first `[databases.*]` block, builds a real PDO via `OpenEdgePDOBuilder`, and `markTestSkipped()`s when `pdo_odbc` is missing, the file is absent, or the connection throws. Then just:
+
+```shell
+cp configs/config.example.toml configs/config.toml   # first time only, then edit it
+composer test:integration
+```
+
+The reference case [`OpenEdgeConnectionTest`](../../tests/oihana/openedge/integration/OpenEdgeConnectionTest.php) opens a live connection and runs the optional `[test]` smoke query; use it as a template for model/controller integration tests.
+
 ## Continuous integration
 
 Two GitHub Actions workflows:
