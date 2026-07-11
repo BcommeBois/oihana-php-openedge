@@ -14,6 +14,7 @@ use oihana\controllers\traits\prepare\PrepareBench;
 use oihana\controllers\traits\prepare\PrepareMock;
 use oihana\controllers\traits\PrepareParamTrait;
 use oihana\controllers\traits\StatusTrait;
+use oihana\enums\http\HttpStatusCode;
 use oihana\enums\Output;
 use oihana\models\traits\ModelTrait;
 use oihana\openedge\enums\OpenEdge;
@@ -80,7 +81,7 @@ trait DocumentsControllerCountTrait
             (
                 $request ,
                 $response ,
-                $e->getCode() ?? 500 ,
+                HttpStatusCode::fromException( $e ) ,
                 $e->getMessage()
             ) ;
         }
