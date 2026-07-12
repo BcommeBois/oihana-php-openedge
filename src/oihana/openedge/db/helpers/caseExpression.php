@@ -11,7 +11,6 @@ use oihana\openedge\db\enums\Conditions;
 use oihana\openedge\enums\OpenEdge;
 use oihana\reflect\exceptions\ConstantException;
 
-use function oihana\core\arrays\isAssociative;
 use function oihana\core\strings\compile;
 use function oihana\openedge\db\helpers\cases\elseExpression;
 use function oihana\openedge\db\helpers\cases\whenThenExpression;
@@ -41,7 +40,7 @@ function caseExpression( array $definition = [] , ?callable $map = null ) :strin
 {
     $case = $definition[ OpenEdge::CASE ] ?? null ;
 
-    if ( !is_array( $case ) && !isAssociative( $case ) )
+    if ( !is_array( $case ) || array_is_list( $case ) )
     {
         return Char::EMPTY ;
     }

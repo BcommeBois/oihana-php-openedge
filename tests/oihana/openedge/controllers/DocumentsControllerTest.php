@@ -13,7 +13,7 @@ use Slim\Psr7\Response;
 
 final class DocumentsControllerTest extends TestCase
 {
-    private function controller( DocumentsModel $model ): DocumentsController
+    private function controller( DocumentsModel $model, array $extra = [] ): DocumentsController
     {
         $app = AppFactory::create();
 
@@ -21,6 +21,7 @@ final class DocumentsControllerTest extends TestCase
             'app'    => $app,
             'router' => $app->getRouteCollector()->getRouteParser(),
             'model'  => $model,
+            ...$extra,
         ] );
     }
 
@@ -76,6 +77,29 @@ final class DocumentsControllerTest extends TestCase
         $this->assertSame( $document, $result );
     }
 
+    public function testGetForcesTheDocumentUrlWhenEnabled(): void
+    {
+        $model = $this->createStub( DocumentsModel::class );
+        $model->method( 'get' )->willReturn( (object) [ 'id' => 7 ] );
+
+        $result = $this->controller( $model, [ 'forceUrl' => true ] )
+            ->get( $this->request(), null, [], [] );
+
+        $this->assertIsObject( $result );
+        $this->assertObjectHasProperty( 'url', $result );
+    }
+
+    public function testGetReturnsFailResponseOnModelException(): void
+    {
+        $model = $this->createStub( DocumentsModel::class );
+        $model->method( 'get' )->willThrowException( new \RuntimeException( 'boom' ) );
+
+        $result = $this->controller( $model )->get( $this->request(), new Response(), [], [] );
+
+        $this->assertInstanceOf( ResponseInterface::class, $result );
+        $this->assertSame( 500, $result->getStatusCode() );
+    }
+
     // --- list --------------------------------------------------------------
 
     public function testListReturnsDocuments(): void
@@ -87,5 +111,29 @@ final class DocumentsControllerTest extends TestCase
         $result = $this->controller( $model )->list( null, null, [], [] );
 
         $this->assertSame( $documents, $result );
+    }
+
+    public function testListForcesDocumentUrlsWhenEnabled(): void
+    {
+        $documents = [ (object) [ 'id' => 1 ] ];
+        $model     = $this->createStub( DocumentsModel::class );
+        $model->method( 'list' )->willReturn( $documents );
+
+        $result = $this->controller( $model, [ 'forceUrl' => true ] )
+            ->list( $this->request(), null, [], [] );
+
+        $this->assertIsArray( $result );
+        $this->assertObjectHasProperty( 'url', $result[ 0 ] );
+    }
+
+    public function testListReturnsFailResponseOnModelException(): void
+    {
+        $model = $this->createStub( DocumentsModel::class );
+        $model->method( 'list' )->willThrowException( new \RuntimeException( 'boom' ) );
+
+        $result = $this->controller( $model )->list( $this->request(), new Response(), [], [] );
+
+        $this->assertInstanceOf( ResponseInterface::class, $result );
+        $this->assertSame( 500, $result->getStatusCode() );
     }
 }

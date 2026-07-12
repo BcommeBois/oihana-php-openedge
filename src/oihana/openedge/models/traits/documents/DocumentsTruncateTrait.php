@@ -18,6 +18,5 @@ trait DocumentsTruncateTrait
     public function truncate( array $init = [] ) :mixed
     {
         $this->unsupported( __FUNCTION__ ) ;
-        return null ;
     }
 }

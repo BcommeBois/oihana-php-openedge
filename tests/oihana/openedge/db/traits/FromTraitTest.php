@@ -87,6 +87,17 @@ final class FromTraitTest extends TestCase
         );
     }
 
+    public function testJoinsArrayWithAStringEntry(): void
+    {
+        $this->assertSame(
+            'FROM t INNER JOIN u ON t.id = u.id',
+            $this->query->from( [
+                OpenEdge::FROM  => 't',
+                OpenEdge::JOINS => [ 'INNER JOIN u ON t.id = u.id' ],
+            ] )
+        );
+    }
+
     public function testNoReorderAppended(): void
     {
         $this->assertSame(

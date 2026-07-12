@@ -78,4 +78,14 @@ final class BindTraitTest extends TestCase
     {
         $this->assertTrue( $this->query->isBindParameter( '@foo', '@' ) );
     }
+
+    public function testBindWrapsAnAlreadyPrefixedName(): void
+    {
+        // When the given name already starts with the prefix, formatBind wraps it.
+        $binds = [];
+        $expr  = $this->query->bind( 'v', $binds, ':my_var' );
+
+        $this->assertSame( ':`:my_var`', $expr );
+        $this->assertSame( [ ':my_var' => 'v' ], $binds );
+    }
 }

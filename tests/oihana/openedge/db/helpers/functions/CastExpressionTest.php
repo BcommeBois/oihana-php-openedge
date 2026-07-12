@@ -68,4 +68,16 @@ final class CastExpressionTest extends TestCase
         $result = castExpression('foo', 'INVALID_TYPE');
         $this->assertSame('foo', $result);
     }
+
+    /**
+     * An array definition whose first element is not a valid Type resets the
+     * type to null and returns the bare expression.
+     *
+     * @throws ConstantException
+     */
+    public function testCastExpressionWithInvalidTypeInArray(): void
+    {
+        $result = castExpression('foo', ['INVALID_TYPE', 5]);
+        $this->assertSame('foo', $result);
+    }
 }

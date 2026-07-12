@@ -19,4 +19,16 @@ final class CastCharTest extends TestCase
         $result = castCHAR('column'  );
         $this->assertEquals('CAST(column AS CHAR(1))', $result);
     }
+
+    public function testCastCharRejectsLengthBelowOne(): void
+    {
+        $this->expectException( \InvalidArgumentException::class );
+        castCHAR('column', 0 );
+    }
+
+    public function testCastCharRejectsLengthAboveMaximum(): void
+    {
+        $this->expectException( \InvalidArgumentException::class );
+        castCHAR('column', 2001 );
+    }
 }

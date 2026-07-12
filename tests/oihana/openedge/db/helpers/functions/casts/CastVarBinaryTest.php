@@ -19,4 +19,16 @@ final class CastVarBinaryTest extends TestCase
         $result = castVARBINARY('column'  );
         $this->assertEquals('CAST(column AS VARBINARY(1))', $result);
     }
+
+    public function testCastVarBinaryRejectsLengthBelowOne(): void
+    {
+        $this->expectException( \InvalidArgumentException::class );
+        castVARBINARY('column', 0 );
+    }
+
+    public function testCastVarBinaryRejectsLengthAboveMaximum(): void
+    {
+        $this->expectException( \InvalidArgumentException::class );
+        castVARBINARY('column', 8001 );
+    }
 }

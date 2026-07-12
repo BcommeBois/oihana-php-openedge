@@ -111,6 +111,16 @@ final class DocumentsTest extends TestCase
         $this->assertNull( $docs->get( [ OpenEdge::VALUE => 999 ] ) );
     }
 
+    public function testGetWithDebugLogsTheQuery(): void
+    {
+        $pdo = $this->pdoReturning( $this->statement( fetch: [ 'id' => 1 ] ) );
+        [ $docs, $logger ] = $this->documents( $pdo );
+
+        $docs->get( [ OpenEdge::VALUE => 1, OpenEdge::DEBUG => true ] );
+
+        $this->assertNotEmpty( $logger->messages );
+    }
+
     // --- list : exercised through a mocked PDO ------------------------------
 
     public function testListReturnsFetchedRows(): void
@@ -133,6 +143,16 @@ final class DocumentsTest extends TestCase
         [ $docs ] = $this->documents( $pdo );
 
         $this->assertSame( [], $docs->list() );
+    }
+
+    public function testListWithDebugLogsTheQuery(): void
+    {
+        $pdo = $this->pdoReturning( $this->statement( fetchAll: [ [ 'id' => 1 ] ] ) );
+        [ $docs, $logger ] = $this->documents( $pdo );
+
+        $docs->list( [ OpenEdge::DEBUG => true ] );
+
+        $this->assertNotEmpty( $logger->messages );
     }
 
     // --- Read-only guards : every mutation is unsupported -------------------

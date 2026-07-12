@@ -47,4 +47,15 @@ final class ValidateContextTest extends TestCase
     {
         $this->assertFalse(validateContext('WHERE', []));
     }
+
+    public function testEmptyStringContextExplicitlyAllowedIsInvalid(): void
+    {
+        // An empty-string context is rejected only when '' is explicitly listed.
+        $this->assertFalse(validateContext('', ['', 'get']));
+    }
+
+    public function testEmptyStringContextNotListedIsValid(): void
+    {
+        $this->assertTrue(validateContext('', ['get', 'list']));
+    }
 }

@@ -91,4 +91,16 @@ class IfNullAndNullIfTest extends TestCase
         $this->assertSame('NULLIF(NULLIF(col1,col2),0)', $result);
     }
 
+    public function testIfNullAppliesTheMapCallbackToTheValue(): void
+    {
+        $result = ifNull('col', 'v', fn($value) => strtoupper($value));
+        $this->assertSame('IFNULL(col,V)', $result);
+    }
+
+    public function testNullIfAppliesTheMapCallbackToTheSecondExpression(): void
+    {
+        $result = nullIf('a', 'b', fn($value) => strtoupper($value));
+        $this->assertSame('NULLIF(a,B)', $result);
+    }
+
 }
