@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-12
+
+First stable release.
+
 ### Added
 - `db/helpers/parseExtent()` helper: extracts one element (0-based index) from a Progress extent serialized as a `';'`-joined string (e.g. `"5;0;0;0"`), trimmed, returning an empty string when the value or the requested index is absent. Registered in `autoload.files` and covered by `ParseExtentTest` (10 tests).
 - Initial scaffold: Composer manifest, PHPUnit 12 + phpDocumentor 3 configuration, MPL-2.0 license, README, CHANGELOG, sibling-aligned folder layout (`src/`, `tests/`, `wiki/`, `assets/`), 132 `autoload.files` entries for the functional helpers.
@@ -41,3 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Coverage campaign — Lot 3 (query builder): added `OpenEdgeQueryBuilderTest` (select/count building, DISTINCT/TOP, composed-trait state) and `OpenEdgeQueryBuilderTraitTest` (default creation, instance reuse, array config, container resolution by name, init fallback). `db/traits` coverage 93.1% → 98.3%, overall line coverage 67.91% → 71.17%.
 - Coverage campaign — Lot 2 (SQL clause traits): added `OrderByTraitTest`, `LookingHintTraitTest`, `BindTraitTest`, `ColumnTraitTest`, `FromTraitTest` and `FacetsTraitTest`; extended `WhereTraitTest` (null init, facets merged into WHERE) and `GroupByTest` (non-array and no-usable-part definitions). `db/traits` coverage 18.3% → 93.1%, overall line coverage 56.03% → 67.91%.
 - Coverage campaign — Lot 1 (helpers): added `OrderByExpressionTest` (11 tests) and `RowUrlTest` (5 tests), covering `db/helpers/orderByExpression()` and `db/helpers/rowUrl()` end to end. Line coverage 53.85% → 56.03%.
+
+[Unreleased]: https://github.com/BcommeBois/oihana-php-openedge/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/BcommeBois/oihana-php-openedge/releases/tag/1.0.0
