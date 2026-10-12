@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - PHPUnit configuration (`phpunit.xml`, `phpunit-integration.xml`) migrated to the PHPUnit 13.4 schema: `cacheResult` → `recordTestRunHistory`, `executionOrder="depends,defects"` → `resolveDependencies="true"` (the `defects` ordering required a recorded run history, which is disabled). Removes the 3 runner deprecations and the runner warning.
 
+### Tests
+- Coverage campaign — Lot 9 (last 12 lines): `OpenEdgePDOBuilderTest` covers the constructor (DSN + credentials mapping) and runs `__invoke()` for real by swapping the DSN for an in-memory SQLite one (no ODBC driver needed); `DocumentsTest` covers `count()`'s `fetchColumn` path through a stubbed PDO. Overall line coverage 98.91% → **100%** (1102/1102 lines, 59/59 methods, 32/32 classes).
+
 ## [1.0.0] - 2026-07-12
 
 First stable release.

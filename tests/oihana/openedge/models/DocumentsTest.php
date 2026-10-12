@@ -107,6 +107,16 @@ final class DocumentsTest extends TestCase
         );
     }
 
+    public function testCountReturnsFetchedColumnThroughPdo(): void
+    {
+        $stmt = $this->statement();
+        $stmt->method( 'fetchColumn' )->willReturn( 42 );
+
+        [ $docs ] = $this->documents( $this->pdoReturning( $stmt ) );
+
+        $this->assertSame( 42, $docs->count( [ OpenEdge::VALUE => 1 ] ) );
+    }
+
     // --- get : exercised through a mocked PDO -------------------------------
 
     public function testGetReturnsFetchedRowAsObject(): void
