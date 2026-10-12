@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- PHPUnit configuration (`phpunit.xml`, `phpunit-integration.xml`) migrated to the PHPUnit 13.4 schema: `cacheResult` → `recordTestRunHistory`, `executionOrder="depends,defects"` → `resolveDependencies="true"` (the `defects` ordering required a recorded run history, which is disabled). Removes the 3 runner deprecations and the runner warning.
+
 ## [1.0.0] - 2026-07-12
 
 First stable release.
